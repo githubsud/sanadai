@@ -5,7 +5,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from app.api import health, lookup, verify
+from app.api import health, lookup, prepare, verify
 from app.config import get_settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -20,6 +20,7 @@ app = FastAPI(
 app.include_router(health.router)
 app.include_router(lookup.router)
 app.include_router(verify.router)
+app.include_router(prepare.router)
 
 # Static frontend last so /api/* routes take precedence.
 app.mount("/", StaticFiles(directory=get_settings().web_dir, html=True), name="web")

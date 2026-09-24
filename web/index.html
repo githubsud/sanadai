@@ -4,14 +4,134 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>سند AI — SanadAI</title>
+  <meta name="description" content="SanadAI: verify circulating Quran verses, hadith and sayings against trusted sources.">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Amiri:wght@400;700&family=Amiri+Quran&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body style="font-family: system-ui, sans-serif; background:#E6F2EF; color:#0B3B3A; padding:2rem">
-  <h1>سند AI</h1>
-  <p>تحقّق من النصوص الدينية المتداولة قبل نشرها.</p>
-  <pre id="health">…</pre>
-  <script type="module">
-    const r = await fetch("/api/health");
-    document.getElementById("health").textContent = JSON.stringify(await r.json(), null, 2);
-  </script>
+<body>
+  <a class="skip" href="#main" data-i18n="results">النتائج</a>
+
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="/" aria-label="SanadAI">
+        <img src="assets/logo.svg" alt="" width="36" height="36">
+        <span data-i18n="brand">سند AI</span>
+      </a>
+      <div class="topbar-actions">
+        <span id="health" class="health" role="status" aria-live="polite"></span>
+        <button id="langToggle" class="btn btn-ghost" type="button" data-i18n="lang_toggle">English</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="wrap">
+        <p class="tagline" data-i18n="tagline"></p>
+
+        <form id="verifyForm" class="input-card" novalidate>
+          <label for="postText" class="label" data-i18n="input_label">النص المتداول</label>
+          <textarea id="postText" rows="5" maxlength="5000" dir="auto"
+                    data-i18n-placeholder="input_placeholder"></textarea>
+
+          <div id="dropZone" class="dropzone" tabindex="0" role="button" aria-describedby="dropHint">
+            <span id="dropHint"><span data-i18n="drop_hint"></span>
+              <label class="linklike" for="fileInput" data-i18n="drop_choose"></label></span>
+            <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+            <div id="imagePreview" class="image-preview" hidden>
+              <img id="previewImg" alt="">
+              <button id="removeImage" type="button" class="btn btn-ghost btn-sm" data-i18n="remove_image"></button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="examples" role="group" aria-labelledby="exLabel">
+              <span id="exLabel" class="muted" data-i18n="examples"></span>
+              <button type="button" class="chip chip-red" data-example="fabricated" data-i18n="ex_fabricated"></button>
+              <button type="button" class="chip chip-amber" data-example="weak" data-i18n="ex_weak"></button>
+              <button type="button" class="chip chip-green" data-example="authentic" data-i18n="ex_authentic"></button>
+              <button type="button" class="chip chip-green" data-example="quran" data-i18n="ex_quran"></button>
+            </div>
+            <button id="verifyBtn" type="submit" class="btn btn-primary">
+              <span data-i18n="verify">تحقّق</span>
+              <kbd class="kbd" data-i18n="shortcut"></kbd>
+            </button>
+          </div>
+          <p id="formError" class="form-error" role="alert" hidden></p>
+        </form>
+      </div>
+    </section>
+
+    <section id="loading" class="wrap loading" hidden aria-live="polite" aria-busy="true">
+      <ol id="loadingSteps" class="loading-steps"></ol>
+    </section>
+
+    <section id="error" class="wrap error-card" hidden role="alert">
+      <h2 data-i18n="error"></h2>
+      <p id="errorDetail" class="muted"></p>
+      <button id="retryBtn" type="button" class="btn btn-ghost" data-i18n="retry"></button>
+    </section>
+
+    <section id="results" class="wrap results" hidden aria-live="polite">
+      <div class="results-head">
+        <div>
+          <h2 data-i18n="results">النتائج</h2>
+          <p id="resultsMeta" class="muted"></p>
+        </div>
+        <button id="prepareBtn" type="button" class="btn btn-gold" data-i18n="prepare">جهّز للنشر</button>
+      </div>
+      <div id="claims" class="claims"></div>
+    </section>
+  </main>
+
+  <dialog id="prepareModal" class="modal" aria-labelledby="prepareTitle">
+    <form method="dialog" class="modal-inner">
+      <header class="modal-head">
+        <h2 id="prepareTitle" data-i18n="prepare_title"></h2>
+        <button class="btn btn-ghost btn-sm" value="close" data-i18n="close"></button>
+      </header>
+      <div class="modal-toolbar">
+        <span class="muted" data-i18n="output_lang"></span>
+        <div class="seg" role="radiogroup">
+          <button type="button" class="seg-btn" role="radio" data-out="ar" aria-checked="true">العربية</button>
+          <button type="button" class="seg-btn" role="radio" data-out="en" aria-checked="false">English</button>
+        </div>
+      </div>
+      <p class="muted small" data-i18n="prepare_note"></p>
+      <p id="prepareWarn" class="form-error" hidden data-i18n="prepare_invalid"></p>
+      <textarea id="preparedText" class="prepared" rows="14" readonly dir="auto"></textarea>
+      <footer class="modal-foot">
+        <button id="copyBtn" type="button" class="btn btn-primary" data-i18n="copy"></button>
+        <a id="waBtn" class="btn btn-ghost" target="_blank" rel="noopener" data-i18n="whatsapp"></a>
+      </footer>
+    </form>
+  </dialog>
+
+  <footer class="footer">
+    <div class="wrap footer-grid">
+      <div>
+        <h3 data-i18n="principles_title"></h3>
+        <ul class="plain">
+          <li data-i18n="p1"></li>
+          <li data-i18n="p2"></li>
+          <li data-i18n="p3"></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="credits_title"></h3>
+        <ul class="plain">
+          <li><a href="https://tanzil.net" target="_blank" rel="noopener" data-i18n="credit_tanzil"></a></li>
+          <li><a href="https://github.com/fawazahmed0/hadith-api" target="_blank" rel="noopener" data-i18n="credit_hadith"></a></li>
+          <li><a href="https://dorar.net" target="_blank" rel="noopener" data-i18n="credit_dorar"></a></li>
+          <li><a href="https://tanzil.net/trans/" target="_blank" rel="noopener" data-i18n="credit_trans"></a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
 </body>
 </html>

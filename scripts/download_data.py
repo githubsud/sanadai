@@ -1,7 +1,8 @@
 """Download raw datasets into data/raw/ (untouched). Idempotent: skips files that already exist.
 
 Sources (see SOURCES.md):
-  - Tanzil Quran text: uthmani + simple-clean (CC BY 3.0, verbatim only)
+  - Tanzil Quran text: uthmani + simple-clean, XML format (CC BY 3.0, verbatim only). XML keeps the Basmala as a
+    separate attribute of verse 1 (the TXT format prefixes it to the verse text).
   - Tanzil translation en.sahih (Saheeh International; non-commercial use)
   - fawazahmed0/hadith-api (Unlicense): Arabic + English editions with gradings
 """
@@ -18,7 +19,7 @@ RAW = ROOT / "data" / "raw"
 
 TANZIL_TEXT = (
     "https://tanzil.net/pub/download/index.php?marks=true&sajdah=true&rub=false&tatweel=true"
-    "&quranType={qtype}&outType=txt-2&agree=true"
+    "&quranType={qtype}&outType=xml&agree=true"
 )
 TANZIL_TRANS = "https://tanzil.net/trans/?transID={tid}&type=txt-2"
 
@@ -57,7 +58,7 @@ def main() -> int:
     with httpx.Client(timeout=120, follow_redirects=True, headers=headers) as client:
         print("Tanzil Quran text")
         for qtype in ("uthmani", "simple-clean"):
-            fetch(client, [TANZIL_TEXT.format(qtype=qtype)], RAW / "tanzil" / f"quran-{qtype}.txt", args.force)
+            fetch(client, [TANZIL_TEXT.format(qtype=qtype)], RAW / "tanzil" / f"quran-{qtype}.xml", args.force)
         fetch(client, ["https://tanzil.net/res/text/metadata/quran-data.xml"],
               RAW / "tanzil" / "quran-data.xml", args.force)
         print("Tanzil translation")

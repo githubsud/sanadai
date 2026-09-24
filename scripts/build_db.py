@@ -58,9 +58,21 @@ def read_tanzil(path: Path) -> dict[tuple[int, int], str]:
     return out
 
 
+def read_tanzil_xml(path: Path) -> tuple[dict[tuple[int, int], str], dict[tuple[int, int], str]]:
+    """(texts, bismillahs) keyed by (surah, ayah) — attribute values are Tanzil's text, verbatim."""
+    texts, bism = {}, {}
+    for sura in ET.parse(path).getroot().iter("sura"):
+        for aya in sura.iter("aya"):
+            key = (int(sura.get("index")), int(aya.get("index")))
+            texts[key] = aya.get("text")
+            if aya.get("bismillah"):
+                bism[key] = aya.get("bismillah")
+    return texts, bism
+
+
 def build_ayahs(con: sqlite3.Connection) -> int:
-    uth = read_tanzil(RAW / "tanzil" / "quran-uthmani.txt")
-    clean = read_tanzil(RAW / "tanzil" / "quran-simple-clean.txt")
+    uth, bism = read_tanzil_xml(RAW / "tanzil" / "quran-uthmani.xml")
+    clean, _ = read_tanzil_xml(RAW / "tanzil" / "quran-simple-clean.xml")
     en_path = RAW / "tanzil" / "en.sahih.txt"
     en = read_tanzil(en_path) if en_path.exists() else {}
     meta = ET.parse(RAW / "tanzil" / "quran-data.xml").getroot()
@@ -70,8 +82,8 @@ def build_ayahs(con: sqlite3.Connection) -> int:
     for gid, key in enumerate(sorted(uth), start=1):
         s, a = key
         rows.append((gid, s, a, names[s][0], names[s][1], uth[key], clean[key],
-                     normalize_ar(clean[key], honorifics=False), en.get(key)))
-    con.executemany("INSERT INTO ayahs VALUES (?,?,?,?,?,?,?,?,?)", rows)
+                     normalize_ar(clean[key], honorifics=False), en.get(key), bism.get(key)))
+    con.executemany("INSERT INTO ayahs VALUES (?,?,?,?,?,?,?,?,?,?)", rows)
     return len(rows)
 
 

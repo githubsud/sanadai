@@ -54,3 +54,20 @@ def extract_matn(text: str, min_len: int = 15) -> str | None:
         if len(rest) >= min_len:
             return rest
     return None
+
+
+_VARIANTS = {"ا": "[اأإآٱٲٳٵ]", "ي": "[يىئی]", "ه": "[هة]", "و": "[وؤ]"}
+_SEP = r"[\s\u200f\u200e\"“”«».,:;،؛!?؟()\[\]\-ـ]+"
+
+
+def _loose_token(tok: str) -> str:
+    return "".join(_VARIANTS.get(ch, re.escape(ch)) + _MARKS for ch in tok)
+
+
+def find_excerpt(original: str, norm_tokens: list[str]) -> str | None:
+    """Verbatim substring of `original` (with its diacritics/punctuation) whose normalized form is `norm_tokens`."""
+    if not original or not norm_tokens:
+        return None
+    pattern = _SEP.join(_loose_token(t) for t in norm_tokens)
+    m = re.search(r"(?<![\w\u064B-\u065F])" + pattern + _MARKS, original)
+    return m.group(0) if m else None

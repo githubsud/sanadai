@@ -21,13 +21,20 @@ def test_counts(db_ready):
 
 def test_quran_text_is_verbatim_tanzil(db_ready):
     """P4: stored Uthmani text must be byte-identical to the Tanzil file."""
+    import xml.etree.ElementTree as ET
+
     raw = {}
-    for line in (RAW / "quran-uthmani.txt").read_text(encoding="utf-8").splitlines():
-        if line and not line.startswith("#"):
-            s, a, t = line.split("|", 2)
-            raw[(int(s), int(a))] = t
+    for sura in ET.parse(RAW / "quran-uthmani.xml").getroot().iter("sura"):
+        for aya in sura.iter("aya"):
+            raw[(int(sura.get("index")), int(aya.get("index")))] = aya.get("text")
     for sid, aid, text in repo.conn().execute("SELECT surah, ayah, text_uthmani FROM ayahs"):
         assert raw[(sid, aid)] == text
+
+
+def test_bismillah_kept_separate(db_ready):
+    assert repo.get_ayah(112, 1)["text_clean"] == "قل هو الله أحد"
+    assert repo.get_ayah(112, 1)["bismillah"]
+    assert repo.get_ayah(1, 1)["bismillah"] is None and repo.get_ayah(9, 1)["bismillah"] is None
 
 
 def test_grade_classes_valid(db_ready):

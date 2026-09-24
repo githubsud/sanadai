@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS ayahs (
     text_clean     TEXT NOT NULL,               -- Tanzil simple-clean verbatim
     text_norm      TEXT NOT NULL,               -- normalize_ar(text_clean, honorifics=False)
     text_en        TEXT,                        -- Tanzil en.sahih (non-commercial)
+    bismillah      TEXT,                        -- Tanzil's separate Basmala attribute of verse 1 (verbatim)
     UNIQUE (surah, ayah)
 );
 

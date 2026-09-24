@@ -19,6 +19,7 @@ from app.config import get_settings
 from app.core import alternatives as alts
 from app.core import classify as cls
 from app.core.extract import extract_claims, ocr_image
+from app.core.matn import find_excerpt
 from app.core.normalize import detect_lang, normalize_ar, normalize_en
 from app.core.quran_match import exact_matches, match_quran
 from app.core.retrieve import retrieve
@@ -257,20 +258,31 @@ def verify_claim(idx: int, claim: ExtractedClaim) -> ClaimResult:
                                collection_en=h["collection_name_en"], number=h["number"], book=h["book"],
                                narrator=h["narrator"], text_ar=h["matn_ar"] or h["text_ar"], text_ar_full=h["text_ar"],
                                text_en=h["text_en"], url=h["source_url"], provider=h["source_dataset"])
+            if c.match_type == "partial":
+                ref_tokens = _hadith_refs(h, lang).get(c.reference, "").split()[c.span[0]:c.span[1]]
+                source.excerpt_ar = find_excerpt(source.text_ar, ref_tokens) or find_excerpt(h["text_ar"], ref_tokens)
             if ctype == "saying" and c.match_type in ("identical", "partial", "altered", "paraphrase"):
                 ctype = "hadith"
                 notes.append("retyped_as_hadith")
 
         # 3) Dorar when the local match is weak or the hadith has no grading (spec 6.3)
-        need_dorar = (not good_local) or not gradings or aggregate_grade(gradings) == "unknown"
+        #    ... or when the local match is only "altered": the circulating text may be a DIFFERENT (weak) hadith
+        #    that Dorar has verbatim, e.g. a short weak saying that resembles part of an authentic hadith.
+        local_exact = good_local and c.match_type in ("identical", "partial")
+        need_dorar = (not local_exact) or not gradings or aggregate_grade(gradings) == "unknown"
         claim_ar = claim.text if lang == "ar" else (source.text_ar if source else None)
         if need_dorar and claim_ar:
             dm = match_dorar(claim_ar, tr)
             if dm and dm.best is not None:
                 d_grades = _dorar_gradings(dm.matching)
+                dorar_better = lang == "ar" and good_local and cls.RANK[dm.c.match_type] > cls.RANK[c.match_type]
+                if dorar_better:
+                    notes.append("dorar_match_preferred")
+                    good_local, local_hid = False, None
                 if good_local:
-                    gradings = gradings + d_grades
-                    notes.append("gradings_from_dorar")
+                    if cls.RANK[dm.c.match_type] >= cls.RANK[c.match_type]:
+                        gradings = gradings + d_grades
+                        notes.append("gradings_from_dorar")
                 else:
                     c = dm.c if lang == "ar" else cls.Classification("paraphrase", 0, 0, 0, (0, 0))
                     confidence = c.span_similarity if c.match_type != "paraphrase" else (hm.confidence if hm else 0.5)

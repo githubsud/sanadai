@@ -59,6 +59,7 @@ class SourceRef(BaseModel):
     narrator: str | None = None
     text_ar: str                     # verbatim from the dataset / Dorar
     text_ar_full: str | None = None  # full text incl. isnad (local datasets)
+    excerpt_ar: str | None = None    # verbatim excerpt of text_ar matching a partial quote
     text_en: str | None = None
     url: str | None = None
     provider: str

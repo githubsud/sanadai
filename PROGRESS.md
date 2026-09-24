@@ -13,14 +13,14 @@
   - 146 seed queries → 130 with Dorar results cached (report: data/seeds/seed_report.jsonl, needs owner review)
 - [x] Phase 5 — LLM provider, extraction (JSON schema) + rule-based fallback, OCR, pipeline + trace, /api/verify
   - LLM path unit-tested with a fake provider; no API key on dev machine yet (rules fallback used live)
-- [ ] Phase 6 — Frontend (all 6.10 components) wired to API
-- [ ] Phase 7 — Prepare-for-publishing + verbatim validator
+- [x] Phase 6 — Frontend (all 6.10 components) wired to API; screenshots in docs/screenshots (desktop + mobile)
+- [x] Phase 7 — Prepare-for-publishing (deterministic, no LLM) + verbatim validator; AR/EN output
 - [ ] Phase 8 — Eval set, run_eval.py, EVALUATION.md, threshold tuning
 - [ ] Phase 9 — Hardening, ruff clean, fresh-clone test
 - [ ] Phase 10 — Submission pack
 
 ## Next step
-Finish hadith_ar index → dense/rerank sanity check (Phase 2). Then Phase 6 frontend.
+Finish hadith_ar index → dense/rerank sanity check (Phase 2). Then Phase 8 evaluation.
 
 ## Decisions
 - 2026-09-24: venv on Python 3.12 (3.13 also installed) for best torch/chromadb wheel compatibility.
@@ -56,6 +56,15 @@ Finish hadith_ar index → dense/rerank sanity check (Phase 2). Then Phase 6 fro
 - 2026-09-24: Uncued text (no «قال رسول الله», no quotes) is a "saying" of unknown attribution: re-typed when it
   matches a verse/hadith; a miss is amber "not found", never red.
 - 2026-09-24: The posted text is kept in memory only (for /api/prepare); checks table stores hash + result.
+- 2026-09-24: Quran imported from Tanzil XML (not TXT): TXT prefixes the Basmala to verse 1 of 112 surahs; XML keeps
+  it as a separate attribute (stored in ayahs.bismillah) with the verse verbatim.
+- 2026-09-24: Pipeline also queries Dorar when the local match is only "altered", and prefers Dorar's source when its
+  match is strictly better (short weak sayings resembling part of an authentic hadith were mislabelled sahih).
+- 2026-09-24: Prepare is deterministic: keep → verbatim original (partial quotes → verbatim excerpt of the source),
+  fabricated/not found → Dorar/local alternative with a fixed connective phrase, or removed with its attribution cue
+  and a note. No LLM involved; validator checks every inserted segment verbatim against DB / Dorar cache.
+- 2026-09-24: UI example chips: fabricated (EN, spec example), weak «كما تكونوا يولى عليكم» (all Dorar verdicts
+  weak), authentic Bukhari 6138 excerpt, Quran 112:1-4 (texts copied from the DB).
 - 2026-09-24: LLM default model claude-opus-5 (LLM_MODEL), effort low, JSON-schema output. Server-side refusal
   fallbacks not enabled: a refusal falls back to the rule-based extractor instead.
 
@@ -67,4 +76,6 @@ Finish hadith_ar index → dense/rerank sanity check (Phase 2). Then Phase 6 fro
 - Sanad Score follows spec 6.6 literally: a well-evidenced FABRICATED text scores ~70 (high match confidence) while
   red. Pending owner decision on whether to cap the score for red items.
 - English claims with no local match cannot query Dorar (Arabic-only search) → fix planned in Phase 8.
+- Hadith «الجنة تحت أقدام الأمهات» is red, not amber: al-Albani «موضوع» (الضعيفة 593) among weak verdicts and no
+  authenticating verdict → cautious rule. Intended; all verdicts are quoted.
 - First request after start is slow (model loading ~20-60 s on CPU); warm-up at startup planned (Phase 9).

@@ -12,7 +12,7 @@ _local = threading.local()
 
 HADITH_COLS = ("id, collection, book, number, text_ar, matn_ar, text_norm, matn_norm, text_en, narrator, "
                "source_url, source_dataset")
-AYAH_COLS = "id, surah, ayah, surah_name_ar, surah_name_en, text_uthmani, text_clean, text_norm, text_en"
+AYAH_COLS = "id, surah, ayah, surah_name_ar, surah_name_en, text_uthmani, text_clean, text_norm, text_en, bismillah"
 
 COLLECTION_NAMES = {
     "bukhari": ("صحيح البخاري", "Sahih al-Bukhari"),

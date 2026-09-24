@@ -18,3 +18,5 @@ models/
 .vscode/
 .idea/
 *.log
+data/seeds/*.log
+data/seeds/*.err
