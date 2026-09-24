@@ -1,0 +1,152 @@
+# Commonly circulated sayings attributed to the Prophet ﷺ — SEARCH QUERIES for scripts/seed_dorar.py.
+# These lines are NOT hadith texts and are never displayed as such: each is sent to Dorar's search and the app
+# shows only Dorar's own returned text, muhaddith, book, page and verdict (quoted verbatim).
+# Drafted by the assistant from commonly listed circulating sayings; every line is `needs_review` until the owner
+# checks data/seeds/seed_report.jsonl (what Dorar actually returned for each query).
+# Format: <query>\t<review_status>
+اطلبوا العلم ولو بالصين	needs_review
+اختلاف أمتي رحمة	needs_review
+حب الوطن من الإيمان	needs_review
+النظافة من الإيمان	needs_review
+الجنة تحت أقدام الأمهات	needs_review
+من عرف نفسه فقد عرف ربه	needs_review
+تفكر ساعة خير من عبادة سنة	needs_review
+الدين المعاملة	needs_review
+أنا مدينة العلم وعلي بابها	needs_review
+اطلبوا العلم من المهد إلى اللحد	needs_review
+صوموا تصحوا	needs_review
+سافروا تصحوا	needs_review
+المعدة بيت الداء والحمية رأس الدواء	needs_review
+لولاك لما خلقت الأفلاك	needs_review
+علماء أمتي كأنبياء بني إسرائيل	needs_review
+رجعنا من الجهاد الأصغر إلى الجهاد الأكبر	needs_review
+اعمل لدنياك كأنك تعيش أبدا	needs_review
+نية المؤمن خير من عمله	needs_review
+خير الأمور أوسطها	needs_review
+أدبني ربي فأحسن تأديبي	needs_review
+خير الأسماء ما حمد وعبد	needs_review
+من لم تنهه صلاته عن الفحشاء والمنكر لم يزدد من الله إلا بعدا	needs_review
+أصحابي كالنجوم بأيهم اقتديتم اهتديتم	needs_review
+إذا رأيتم الرجل يعتاد المساجد فاشهدوا له بالإيمان	needs_review
+من حج البيت ولم يزرني فقد جفاني	needs_review
+من زار قبري وجبت له شفاعتي	needs_review
+الناس نيام فإذا ماتوا انتبهوا	needs_review
+كما تكونوا يولى عليكم	needs_review
+الأقربون أولى بالمعروف	needs_review
+الساكت عن الحق شيطان أخرس	needs_review
+العلم علمان علم الأبدان وعلم الأديان	needs_review
+عليكم بدين العجائز	needs_review
+حسنات الأبرار سيئات المقربين	needs_review
+كنت كنزا مخفيا فأحببت أن أعرف	needs_review
+أول ما خلق الله نور نبيك يا جابر	needs_review
+ما وسعني أرضي ولا سمائي ووسعني قلب عبدي المؤمن	needs_review
+اتق شر من أحسنت إليه	needs_review
+النكاح سنتي فمن رغب عن سنتي فليس مني	needs_review
+تخلقوا بأخلاق الله	needs_review
+الخير في وفي أمتي إلى يوم القيامة	needs_review
+لا تكرهوا البنات فإنهن المؤنسات الغاليات	needs_review
+أكرموا الخبز	needs_review
+شاوروهن وخالفوهن	needs_review
+لا صلاة لجار المسجد إلا في المسجد	needs_review
+من أخلص لله أربعين يوما ظهرت ينابيع الحكمة من قلبه على لسانه	needs_review
+إن لربكم في أيام دهركم نفحات فتعرضوا لها	needs_review
+حب الدنيا رأس كل خطيئة	needs_review
+الدنيا جيفة وطلابها كلاب	needs_review
+السلطان ظل الله في الأرض	needs_review
+من قال أنا عالم فهو جاهل	needs_review
+لا تجتمع أمتي على ضلالة	needs_review
+من صلى علي في كتاب لم تزل الملائكة تستغفر له ما دام اسمي في ذلك الكتاب	needs_review
+من آذى ذميا فأنا خصمه	needs_review
+أحبوا العرب لثلاث لأني عربي والقرآن عربي وكلام أهل الجنة عربي	needs_review
+إذا أعيتكم الأمور فعليكم بأهل القبور	needs_review
+توسلوا بجاهي فإن جاهي عند الله عظيم	needs_review
+لو اعتقد أحدكم في حجر لنفعه	needs_review
+من بلغ الأربعين ولم يغلب خيره شره فليتجهز إلى النار	needs_review
+الجمعة حج الفقراء	needs_review
+استعينوا على قضاء حوائجكم بالكتمان	needs_review
+تزوجوا ولا تطلقوا فإن الطلاق يهتز له العرش	needs_review
+أبغض الحلال إلى الله الطلاق	needs_review
+من قرأ سورة الواقعة كل ليلة لم تصبه فاقة أبدا	needs_review
+من قرأ يس في ليلة أصبح مغفورا له	needs_review
+يس لما قرئت له	needs_review
+لكل شيء قلب وقلب القرآن يس	needs_review
+من حفظ على أمتي أربعين حديثا	needs_review
+إذا صعد الخطيب المنبر فلا صلاة ولا كلام	needs_review
+من تهاون في صلاته عاقبه الله بخمس عشرة عقوبة	needs_review
+رجب شهر الله وشعبان شهري ورمضان شهر أمتي	needs_review
+اللهم بارك لنا في رجب وشعبان وبلغنا رمضان	needs_review
+أول شهر رمضان رحمة وأوسطه مغفرة وآخره عتق من النار	needs_review
+من أحيا ليلتي العيد لم يمت قلبه يوم تموت القلوب	needs_review
+إذا كانت ليلة النصف من شعبان فقوموا ليلها وصوموا نهارها	needs_review
+من وسع على عياله يوم عاشوراء وسع الله عليه سائر سنته	needs_review
+من اكتحل يوم عاشوراء لم يرمد	needs_review
+عليكم بالعدس فإنه قدس على لسان سبعين نبيا	needs_review
+الباذنجان لما أكل له	needs_review
+الديك الأبيض صديقي	needs_review
+النظر إلى وجه العالم عبادة	needs_review
+النظر إلى الكعبة عبادة	needs_review
+النظر في المصحف عبادة	needs_review
+مداد العلماء أفضل من دماء الشهداء	needs_review
+من تعلم لغة قوم أمن مكرهم	needs_review
+أنا جد كل تقي	needs_review
+خاطبوا الناس على قدر عقولهم	needs_review
+الكلمة الحكمة ضالة المؤمن	needs_review
+الغناء ينبت النفاق في القلب	needs_review
+من استمع إلى قينة صب في أذنيه الآنك	needs_review
+البخيل عدو الله ولو كان عابدا	needs_review
+السخي قريب من الله قريب من الجنة	needs_review
+الجار قبل الدار والرفيق قبل الطريق	needs_review
+إذا أحب الله عبدا ابتلاه	needs_review
+عند ذكر الصالحين تنزل الرحمة	needs_review
+من لا يهتم بأمر المسلمين فليس منهم	needs_review
+المؤمن كيس فطن	needs_review
+أنزلوا الناس منازلهم	needs_review
+القناعة كنز لا يفنى	needs_review
+أحبب حبيبك هونا ما	needs_review
+اتقوا فراسة المؤمن فإنه ينظر بنور الله	needs_review
+سيد القوم خادمهم	needs_review
+من أصبح وهمه الدنيا فليس من الله في شيء	needs_review
+الشباب شعبة من الجنون	needs_review
+النساء حبائل الشيطان	needs_review
+خذوا نصف دينكم عن هذه الحميراء	needs_review
+تناكحوا تكاثروا فإني مباه بكم الأمم	needs_review
+ما خاب من استخار ولا ندم من استشار	needs_review
+الصبر نصف الإيمان	needs_review
+داووا مرضاكم بالصدقة	needs_review
+حصنوا أموالكم بالزكاة	needs_review
+إن الله يحب العبد المحترف	needs_review
+الكاد على عياله كالمجاهد في سبيل الله	needs_review
+من أعان ظالما سلطه الله عليه	needs_review
+أنا عربي والقرآن عربي	needs_review
+من أحب قوما حشر معهم	needs_review
+الحياء خير كله والدين كله حياء	needs_review
+البركة مع أكابركم	needs_review
+الصلاة عماد الدين من أقامها فقد أقام الدين ومن هدمها فقد هدم الدين	needs_review
+العلم في الصغر كالنقش على الحجر	needs_review
+من علمني حرفا صرت له عبدا	needs_review
+الفقر فخري وبه أفتخر	needs_review
+موتوا قبل أن تموتوا	needs_review
+لو كان الفقر رجلا لقتلته	needs_review
+من سئل عن علم فكتمه ألجم بلجام من نار	needs_review
+حسن العهد من الإيمان	needs_review
+من كثرت صلاته بالليل حسن وجهه بالنهار	needs_review
+يا علي لا تنم حتى تأتي بخمسة أشياء	needs_review
+إن الله يبعث لهذه الأمة على رأس كل مائة سنة من يجدد لها دينها	needs_review
+أمرت أن أحكم بالظاهر والله يتولى السرائر	needs_review
+آخر من يدخل الجنة عبد الرحمن بن عوف حبوا	needs_review
+أربع من سعادة المرء	needs_review
+ثلاث يجلين البصر النظر إلى الخضرة والماء الجاري والوجه الحسن	needs_review
+من مات ولم يعرف إمام زمانه مات ميتة جاهلية	needs_review
+المؤمن مرآة أخيه	needs_review
+كل مولود يولد على الفطرة وأبواه يهودانه	needs_review
+لا تغضب ولك الجنة	needs_review
+الصدقة تطفئ غضب الرب	needs_review
+أكثروا من ذكر هادم اللذات	needs_review
+عليكم بسنتي وسنة الخلفاء الراشدين	needs_review
+من قال سبحان الله وبحمده في يوم مائة مرة	needs_review
+إنما الأعمال بالنيات	needs_review
+إذا مات ابن آدم انقطع عمله إلا من ثلاث	needs_review
+الحلال بين والحرام بين	needs_review
+الدين النصيحة	needs_review
+لا يؤمن أحدكم حتى يحب لأخيه ما يحب لنفسه	needs_review
+طلب العلم فريضة على كل مسلم	needs_review

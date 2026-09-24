@@ -112,9 +112,10 @@ def get_ayah_range(start_id: int, end_id: int) -> list[dict]:
     return [dict(r) for r in rows]
 
 
-def all_ayahs_norm() -> list[tuple[int, int, int, str]]:
-    """[(id, surah, ayah, text_norm)] in mushaf order — for exact / sliding-window matching."""
-    return [tuple(r) for r in conn().execute("SELECT id, surah, ayah, text_norm FROM ayahs ORDER BY id")]
+def all_ayahs(field: str = "text_norm") -> list[tuple[int, int, int, str]]:
+    """[(id, surah, ayah, <field>)] in mushaf order — for exact / sliding-window matching."""
+    assert field in ("text_norm", "text_uthmani", "text_clean")
+    return [tuple(r) for r in conn().execute(f"SELECT id, surah, ayah, {field} FROM ayahs ORDER BY id")]
 
 
 def fts_ayahs(text_norm: str, limit: int = 50) -> list[tuple[int, float]]:

@@ -13,6 +13,7 @@ db/*.db-*
 index/*
 !index/.gitkeep
 !db/.gitkeep
+models/
 
 .vscode/
 .idea/
