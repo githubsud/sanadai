@@ -98,7 +98,9 @@ def build_hadiths(con: sqlite3.Connection) -> dict[str, int]:
             if not text_ar:
                 continue
             number = _number(h)
-            if number in seen:  # duplicated numbering in source; keep first
+            if number in seen:  # item without arabicnumber colliding with another's number: use in-book no.
+                number = f"{h['hadithnumber']}-inbook"
+            if number in seen:
                 continue
             seen.add(number)
             en_h = en_by_num.get(h["hadithnumber"], {})
@@ -115,7 +117,7 @@ def build_hadiths(con: sqlite3.Connection) -> dict[str, int]:
                 (col, book, number, text_ar, matn, normalize_ar(text_ar),
                  normalize_ar(matn) if matn else None, text_en,
                  normalize_en(text_en) if text_en else None, narrator,
-                 f"https://sunnah.com/{slug}:{number}", now_src),
+                 f"https://sunnah.com/{slug}:{number.split('.')[0].split('-')[0]}", now_src),
             )
             hid = cur.lastrowid
             for g in h.get("grades") or []:

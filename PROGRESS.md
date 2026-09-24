@@ -2,7 +2,10 @@
 
 ## Phases
 - [x] Phase 0 — Setup: skeleton, AGENTS.md, PROGRESS.md, requirements, .env.example, Makefile/scripts, health endpoint, hello page
-- [ ] Phase 1 — Data: download_data.py, build_db.py (normalization + FTS5), SOURCES.md, normalize tests
+- [x] Phase 1 — Data: download_data.py, build_db.py (normalization + FTS5), SOURCES.md, normalize tests
+  - 6,236 ayahs; 36,104 hadith (bukhari 7580, muslim 7360, abudawud 5272, tirmidhi 3924, nasai 5679,
+    ibnmajah 4338, malik 1829, nawawi 42, qudsi 40, dehlawi 40); 82k gradings; matn extracted for 88%
+  - repo.py data layer + GET /api/hadith/{id}, /api/ayah/{s}/{a}
 - [ ] Phase 2 — Index: build_index.py (bge-m3, resumable, DEMO_SUBSET), retrieval + RRF + rerank, CLI
 - [ ] Phase 3 — Quran matching, classification, diff, score + unit tests
 - [ ] Phase 4 — Dorar client + cache + seed_dorar.py + alternatives (offline from cache)
@@ -14,7 +17,7 @@
 - [ ] Phase 10 — Submission pack
 
 ## Next step
-Phase 1: run download_data.py + build_db.py, verify counts, finish SOURCES.md.
+Phase 2: build_index.py (bge-m3) + retrieve.py (FTS5 + Chroma + RRF + rerank).
 
 ## Decisions
 - 2026-09-24: venv on Python 3.12 (3.13 also installed) for best torch/chromadb wheel compatibility.
@@ -32,4 +35,7 @@ Phase 1: run download_data.py + build_db.py, verify counts, finish SOURCES.md.
 - 2026-09-24: ruff line-length 120.
 
 ## Known issues
-- (none yet)
+- matn heuristic misses some chain-only variant narrations (e.g. Muslim «ح» chains); full text is always matched too.
+- 9 Muslim items lack an Abdul-Baqi number → stored as '<in-book no>-inbook'. Muslim decimal numbers (e.g. 1149.03)
+  link to the integer page on sunnah.com.
+- ~0.6% source rows with empty Arabic text are skipped.
