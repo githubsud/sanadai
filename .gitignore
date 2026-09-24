@@ -20,3 +20,5 @@ models/
 *.log
 data/seeds/*.log
 data/seeds/*.err
+data/eval/*.log
+data/eval/*.err

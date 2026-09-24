@@ -39,10 +39,10 @@ fabricated/baseless and none authenticates it → mawdu; otherwise the majority 
 All verdicts are always quoted with grader, book and reference.
 
 **Traffic light**
-- 🟢 green — Quran verse matched (identical / excerpt / meaning), or a hadith graded sahih/hasan matched identically,
-  as an excerpt, or by meaning with confidence ≥ 0.5.
-- 🟡 amber — needs review: weak grading, unknown grading, altered wording, low confidence, or an unattributed saying
-  not found.
+- 🟢 green — Quran verse matched identically / as an excerpt (or its translation, cross-language), or a hadith graded
+  sahih/hasan matched identically, as an excerpt, or cross-language with confidence ≥ 0.5.
+- 🟡 amber — needs review: weak grading, unknown grading, altered wording, meaning-only match in the same language,
+  low confidence, or an unattributed saying not found.
 - 🔴 red — graded fabricated/baseless, or attributed to the Prophet ﷺ / presented as Quran but not found in the
   approved sources («لم يُعثر عليه في المصادر المعتمدة»).
 
@@ -54,7 +54,9 @@ All verdicts are always quoted with grader, book and reference.
 | `TH_PARTIAL_SPAN` | 0.90 | char similarity of the aligned span |
 | `TH_PARTIAL_COVERAGE` | 0.60 | share of claim tokens aligned to the source |
 | `TH_ALTERED` | 0.60 | minimum span similarity to call it an altered quote |
-| `TH_PARAPHRASE_RERANK` | 0.50 | reranker relevance for a meaning / cross-language match |
+| `TH_PARAPHRASE_RERANK` | 0.50 | reranker relevance for a cross-language (English → Arabic) meaning match |
+| `TH_PARAPHRASE_SAME_LANG` | 0.90 | reranker relevance for a same-language meaning match … |
+| `TH_PARAPHRASE_OVERLAP` | 0.40 | … which also needs this share of the claim's words in the source (never green) |
 | `TH_LOW_CONFIDENCE` | 0.50 | below this, a sahih/hasan match is only amber |
 
 identical/partial additionally require **no word edits inside the aligned span** (strict for Quran; hadith tolerate

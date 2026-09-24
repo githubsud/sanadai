@@ -41,7 +41,9 @@ class Settings(BaseSettings):
     th_partial_span: float = 0.90
     th_partial_coverage: float = 0.60
     th_altered: float = 0.60
-    th_paraphrase_rerank: float = 0.50
+    th_paraphrase_rerank: float = 0.50       # cross-language meaning match
+    th_paraphrase_same_lang: float = 0.90    # same-language meaning match needs a higher score ...
+    th_paraphrase_overlap: float = 0.40      # ... and this share of the claim's words in the source
     th_low_confidence: float = 0.50  # below this a sahih/hasan match is only amber
 
     dorar_base_url: str = "https://dorar-hadith-api.vercel.app"

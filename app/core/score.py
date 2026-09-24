@@ -52,8 +52,9 @@ def aggregate_grade(gradings: list[dict]) -> str:
 
 
 def sanad_score(claim_type: str, match_type: str, confidence: float, grade_class: str,
-                attributed_to_prophet: bool = True) -> ScoreResult:
-    """claim_type: quran | hadith | saying."""
+                attributed_to_prophet: bool = True, cross_lang: bool = False) -> ScoreResult:
+    """claim_type: quran | hadith | saying. A same-language paraphrase (the circulating WORDING was not found,
+    only a text of similar meaning) is never green."""
     s = get_settings()
     conf = max(0.0, min(1.0, confidence or 0.0))
     if match_type == "not_found":
@@ -74,12 +75,16 @@ def sanad_score(claim_type: str, match_type: str, confidence: float, grade_class
     if claim_type == "quran":
         if match_type == "altered":
             return ScoreResult(score, "amber", "quran", ["quran_wording_altered"])
+        if match_type == "paraphrase" and not cross_lang:
+            return ScoreResult(score, "amber", "quran", ["meaning_only"])
         if conf < s.th_low_confidence and match_type == "paraphrase":
             return ScoreResult(score, "amber", "quran", ["low_confidence"])
         return ScoreResult(score, "green", "quran", ["quran_verified"])
 
     if grade_class == "mawdu":
         return ScoreResult(score, "red", grade_class, ["graded_fabricated"])
+    if match_type == "paraphrase" and not cross_lang:
+        reasons.append("meaning_only")
     if match_type == "altered":
         reasons.append("wording_altered")
     if grade_class == "daif":

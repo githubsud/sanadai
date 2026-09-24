@@ -1,9 +1,9 @@
 {
   "config": {
-    "run_at": "2026-09-24 20:30 UTC",
+    "run_at": "2026-09-24 21:36 UTC",
     "extraction": "rules",
-    "dense": false,
-    "reranker": false,
+    "dense": true,
+    "reranker": true,
     "models": {
       "device": "cpu",
       "embed_backend": "onnx",
@@ -15,17 +15,19 @@
       "th_partial_coverage": 0.6,
       "th_altered": 0.6,
       "th_paraphrase_rerank": 0.5,
+      "th_paraphrase_same_lang": 0.9,
+      "th_paraphrase_overlap": 0.4,
       "th_low_confidence": 0.5
     }
   },
   "metrics": {
     "n": 120,
     "extraction_recall": 1.0,
-    "top1_source_accuracy": 0.97,
-    "top5_source_accuracy": 0.99,
+    "top1_source_accuracy": 0.98,
+    "top5_source_accuracy": 0.98,
     "n_with_source": 100,
-    "status_accuracy": 0.9,
-    "match_type_accuracy": 1.0,
+    "status_accuracy": 0.8917,
+    "match_type_accuracy": 0.9875,
     "confusion_matrix": {
       "green": {
         "green": 49,
@@ -41,43 +43,43 @@
       },
       "red": {
         "green": 0,
-        "amber": 0,
-        "red": 40,
+        "amber": 1,
+        "red": 39,
         "none": 0
       }
     },
     "latency_ms": {
-      "median": 205,
-      "p90": 722,
-      "max": 8500
+      "median": 4002,
+      "p90": 10532,
+      "max": 63030
     },
     "per_category": {
       "authentic": {
         "n": 40,
         "extraction_recall": 1.0,
-        "top1": 0.95,
+        "top1": 1.0,
         "top5": 1.0,
         "status_acc": 1.0,
         "match_acc": 1.0,
-        "median_ms": 181
+        "median_ms": 121
       },
       "no_basis": {
         "n": 20,
         "extraction_recall": 1.0,
         "top1": null,
         "top5": null,
-        "status_acc": 1.0,
-        "match_acc": 1.0,
-        "median_ms": 352
+        "status_acc": 0.95,
+        "match_acc": 0.95,
+        "median_ms": 6886
       },
       "quran": {
         "n": 20,
         "extraction_recall": 1.0,
-        "top1": 1.0,
-        "top5": 1.0,
+        "top1": 0.95,
+        "top5": 0.95,
         "status_acc": 1.0,
         "match_acc": 1.0,
-        "median_ms": 9
+        "median_ms": 6
       },
       "weak_fabricated": {
         "n": 40,
@@ -86,7 +88,7 @@
         "top5": 0.975,
         "status_acc": 0.7,
         "match_acc": null,
-        "median_ms": 210
+        "median_ms": 6458
       }
     }
   }

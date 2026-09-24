@@ -6,8 +6,8 @@
   - 6,236 ayahs; 36,104 hadith (bukhari 7580, muslim 7360, abudawud 5272, tirmidhi 3924, nasai 5679,
     ibnmajah 4338, malik 1829, nawawi 42, qudsi 40, dehlawi 40); 82k gradings; matn extracted for 88%
   - repo.py data layer + GET /api/hadith/{id}, /api/ayah/{s}/{a}
-- [~] Phase 2 — Index: build_index.py (bge-m3, resumable, DEMO_SUBSET), retrieval + RRF + rerank, CLI
-  - ayah_ar + ayah_en indexed (6,236 each); hadith_ar (15,062 demo docs) building; dense sanity check pending
+- [x] Phase 2 — Index: build_index.py (bge-m3, resumable, DEMO_SUBSET), retrieval + RRF + rerank, CLI
+  - ayah_ar + ayah_en (6,236 each), hadith_ar (15,062 demo docs), dorar_ar (1,199 cached Dorar texts); CLI verified
 - [x] Phase 3 — Quran matching (exact stream, clean+Uthmani spellings, fuzzy windows), classification, diff, score + tests
 - [x] Phase 4 — Dorar client (Python port, urllib) + permanent cache + seed_dorar.py + alternatives
   - 146 seed queries → 130 with Dorar results cached (report: data/seeds/seed_report.jsonl, needs owner review)
@@ -15,12 +15,26 @@
   - LLM path unit-tested with a fake provider; no API key on dev machine yet (rules fallback used live)
 - [x] Phase 6 — Frontend (all 6.10 components) wired to API; screenshots in docs/screenshots (desktop + mobile)
 - [x] Phase 7 — Prepare-for-publishing (deterministic, no LLM) + verbatim validator; AR/EN output
-- [ ] Phase 8 — Eval set, run_eval.py, EVALUATION.md, threshold tuning
-- [ ] Phase 9 — Hardening, ruff clean, fresh-clone test
-- [ ] Phase 10 — Submission pack
+- [x] Phase 8 — Eval set (120 items, needs owner review), run_eval.py, EVALUATION.md, fixes from failure analysis
+  - hybrid run: top-5 98%, top-1 98%, extraction 100%, match-type 98.8%, status 89.2% (no false green),
+    median 4.0 s / p90 10.5 s on CPU
+- [x] Phase 9 — Hardening (warm-up, timeouts, JSON 500, health), ruff clean, fresh-clone test passed
+  (clone → setup.ps1 → download → build_db → 156 passed / 2 skipped; server works before the vector index)
+- [x] Phase 10 — README (bilingual, 4-command setup, diagram, screenshots, eval table), ARCHITECTURE, DEMO_SCRIPT,
+  SOURCES, LICENSE, included/not-included list
 
 ## Next step
-Finish hadith_ar index → dense/rerank sanity check (Phase 2). Then Phase 8 evaluation.
+All phases done. Waiting for owner decisions below; then: apply them, review labels, rerun eval, record the demo.
+
+## Open decisions for the owner
+1. Weak vs fabricated policy: a text with ≥1 «موضوع/لا أصل له» verdict and no authenticating verdict is RED
+   (currently). 12 of the 20 "weak" eval items (labelled by Dorar's top hit) turn red under this rule.
+2. Sanad Score for red items: spec formula gives ~70 to a well-evidenced fabricated text. Cap red scores?
+3. ANTHROPIC_API_KEY for live LLM extraction + screenshot OCR tests (not available on dev machine).
+4. AhmedBaset/hadith-json has no license — include (7 more books: Ahmad, Darimi, Riyad as-Salihin…) or not?
+5. Commit an export of the Dorar cache so a fresh clone works fully offline? (Dorar content licensing unclear.)
+6. Review data/seeds/circulating.txt + seed_report.jsonl and data/eval/testset.jsonl labels (all needs_review).
+7. onnx-community/bge-reranker-v2-m3-ONNX has no license tag (derivative of an Apache-2.0 model) — acceptable?
 
 ## Decisions
 - 2026-09-24: venv on Python 3.12 (3.13 also installed) for best torch/chromadb wheel compatibility.
@@ -65,6 +79,10 @@ Finish hadith_ar index → dense/rerank sanity check (Phase 2). Then Phase 8 eva
   and a note. No LLM involved; validator checks every inserted segment verbatim against DB / Dorar cache.
 - 2026-09-24: UI example chips: fabricated (EN, spec example), weak «كما تكونوا يولى عليكم» (all Dorar verdicts
   weak), authentic Bukhari 6138 excerpt, Quran 112:1-4 (texts copied from the DB).
+- 2026-09-25: Same-language meaning-only matches need reranker ≥ 0.90 AND ≥ 40% shared words and are never green
+  (reranker gave unrelated proverbs > 0.8 against authentic hadith). Cross-language threshold stays 0.50.
+- 2026-09-25: Dorar gradings are taken only from hits matching at the best level (the text as circulated).
+- 2026-09-25: English claims → cross-lingual search over embedded Dorar cache texts (dorar_ar), then the cached search.
 - 2026-09-24: LLM default model claude-opus-5 (LLM_MODEL), effort low, JSON-schema output. Server-side refusal
   fallbacks not enabled: a refusal falls back to the rule-based extractor instead.
 
@@ -75,7 +93,7 @@ Finish hadith_ar index → dense/rerank sanity check (Phase 2). Then Phase 8 eva
 - ~0.6% source rows with empty Arabic text are skipped.
 - Sanad Score follows spec 6.6 literally: a well-evidenced FABRICATED text scores ~70 (high match confidence) while
   red. Pending owner decision on whether to cap the score for red items.
-- English claims with no local match cannot query Dorar (Arabic-only search) → fix planned in Phase 8.
+- English claims with no local match reach Dorar only via texts already in the Dorar cache (cross-lingual lookup).
 - Hadith «الجنة تحت أقدام الأمهات» is red, not amber: al-Albani «موضوع» (الضعيفة 593) among weak verdicts and no
   authenticating verdict → cautious rule. Intended; all verdicts are quoted.
-- First request after start is slow (model loading ~20-60 s on CPU); warm-up at startup planned (Phase 9).
+- Startup warm-up takes ~35 s on CPU (background); requests needing the reranker take 3-12 s on this laptop.

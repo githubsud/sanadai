@@ -63,7 +63,7 @@ git clone <repo-url> sanadai && cd sanadai
   search only) — you can run it as soon as `build_db` finishes.
 - Optional: put `ANTHROPIC_API_KEY` in `.env` for LLM claim extraction and screenshot OCR. Without it, rule-based
   extraction is used and image input is disabled.
-- `make test` / `pytest -q` — 160 tests; `python scripts/run_eval.py` — evaluation (see below).
+- `make test` / `pytest -q` — 162 tests (`RUN_SLOW=1` adds the model-based ones); `python scripts/run_eval.py` — evaluation (see below).
 
 ## Architecture
 
@@ -90,7 +90,14 @@ bge-m3 / bge-reranker-v2-m3 (int8 ONNX on CPU) · Anthropic API · vanilla JS.
 120-item test set built deterministically from the sources (authentic, weak/fabricated, Quran, no-basis probes).
 Full report: [docs/EVALUATION.md](docs/EVALUATION.md).
 
-<!-- EVAL-TABLE -->
+| Metric (120 items, CPU laptop, rule-based extraction, Dorar offline cache) | Result |
+|---|---|
+| Top-5 source accuracy (target ≥ 90%) | **98.0%** |
+| Top-1 source accuracy | 98.0% |
+| Claim-extraction recall | 100% |
+| Match-type accuracy | 98.8% |
+| Traffic-light accuracy | 89.2% — every remaining miss is conservative (12 weak texts shown red because a muhaddith rated them fabricated and none authenticated them); **no false "verified"** |
+| Latency (warm) median / p90 | 4.0 s / 10.5 s — exact quotes resolve in ~0.1 s without neural models |
 
 ## API
 

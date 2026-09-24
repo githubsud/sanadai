@@ -218,7 +218,10 @@ def report(m: dict, preds: list[dict], cfg: dict) -> str:
     for p in wrong:
         lines.append(f"| {p['id']} | {p['expected_status']} | {p['status']} | {p['match_type']} | "
                      f"{'yes' if p['top1'] else 'no'} | {p['pred_source'] or '—'} |")
-    lines += ["", open(ROOT / "docs" / "_evaluation_method.md", encoding="utf-8").read()]
+    for extra in ("_evaluation_analysis.md", "_evaluation_method.md"):
+        path = ROOT / "docs" / extra
+        if path.exists():
+            lines += ["", path.read_text(encoding="utf-8")]
     return "\n".join(lines) + "\n"
 
 
@@ -227,7 +230,13 @@ def main() -> int:
     ap.add_argument("--limit", type=int)
     ap.add_argument("--only")
     ap.add_argument("--lexical-only", action="store_true")
+    ap.add_argument("--report-only", action="store_true", help="rewrite EVALUATION.md from the last run")
     a = ap.parse_args()
+    if a.report_only:
+        saved = json.loads(RESULTS.read_text(encoding="utf-8"))
+        preds = [json.loads(x) for x in PREDS.read_text(encoding="utf-8").splitlines() if x.strip()]
+        REPORT.write_text(report(saved["metrics"], preds, saved["config"]), encoding="utf-8")
+        return 0
     sys.stdout.reconfigure(encoding="utf-8")
     s = get_settings()
     if a.lexical_only:

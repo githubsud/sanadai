@@ -15,7 +15,7 @@ URL = "http://127.0.0.1:8765/"
 def shoot(browser, width: int, tag: str, which: list[str]) -> list[str]:
     logs: list[str] = []
     page = browser.new_page(viewport={"width": width, "height": 900})
-    page.on("console", logs.append)
+    page.on("console", lambda m: logs.append(f"{m.type}: {m.text}"))
     page.on("pageerror", lambda e: logs.append(f"PAGEERROR: {e}"))
     page.goto(URL)
     page.wait_for_timeout(1500)

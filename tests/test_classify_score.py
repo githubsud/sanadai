@@ -61,10 +61,17 @@ def test_too_short_claim_not_found():
     assert compare("النص", SRC).match_type == "not_found"
 
 
-def test_paraphrase_from_meaning_score():
-    c = classify("عباره مختلفه تماما في الالفاظ", {"text": SRC}, rerank=0.9)
+def test_same_language_paraphrase_needs_score_and_word_overlap():
+    # high reranker score alone is not enough in the same language (unrelated proverbs can score > 0.9)
+    assert classify("عباره مختلفه تماما في الالفاظ", {"text": SRC}, rerank=0.95).match_type == "not_found"
+    claim = "تستخدم كثيرا جملة قصيرة بين الناس لاختبار الفهم في المصدر"  # 40% shared words, low similarity
+    c = classify(claim, {"text": SRC}, rerank=0.95)
     assert c.match_type == "paraphrase" and c.diff == []
-    assert classify("عباره مختلفه تماما في الالفاظ", {"text": SRC}, rerank=0.1).match_type == "not_found"
+    assert classify(claim, {"text": SRC}, rerank=0.6).match_type == "not_found"
+
+
+def test_cross_language_paraphrase_from_meaning_score():
+    assert classify("completely different words", {"text": SRC}, rerank=0.6, cross_lang=True).match_type == "paraphrase"
 
 
 def test_classify_prefers_best_reference():
@@ -105,7 +112,7 @@ def test_char_ratio_edges():
     [
         ("hadith", "identical", 1.0, "sahih", "green", 100),
         ("hadith", "partial", 0.9, "hasan", "green", 81),
-        ("hadith", "paraphrase", 0.8, "sahih", "green", 77),
+        ("hadith", "paraphrase", 0.8, "sahih", "amber", 77),
         ("hadith", "identical", 1.0, "daif", "amber", 75),
         ("hadith", "identical", 1.0, "unknown", "amber", 80),
         ("hadith", "altered", 0.9, "sahih", "amber", 71),
@@ -121,6 +128,13 @@ def test_char_ratio_edges():
 def test_sanad_score_table(claim_type, match, conf, grade, status, score):
     r = sanad_score(claim_type, match, conf, grade)
     assert (r.status, r.score) == (status, score)
+
+
+def test_cross_language_paraphrase_can_be_green_same_language_never():
+    assert sanad_score("hadith", "paraphrase", 0.9, "sahih", cross_lang=True).status == "green"
+    r = sanad_score("hadith", "paraphrase", 0.99, "sahih", cross_lang=False)
+    assert r.status == "amber" and "meaning_only" in r.reasons
+    assert sanad_score("quran", "paraphrase", 0.99, "unknown", cross_lang=False).status == "amber"
 
 
 def test_score_bounds_and_determinism():

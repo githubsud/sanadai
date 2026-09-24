@@ -8,6 +8,7 @@ only extracted the claim spans; summaries are deterministic templates.
 """
 
 import hashlib
+import json
 import logging
 import time
 import uuid
@@ -209,7 +210,15 @@ def cross_lingual_dorar(claim_en: str, tr: Tracer) -> tuple[str, float] | None:
             st.detail.update(candidates=len(texts), best_score=round(best[0], 3))
             if best[0] < s.th_paraphrase_rerank:
                 return None
-            return best[1], best[0]
+            # Reuse the cached Dorar search that returned this text (works offline): its query is the circulating
+            # Arabic phrasing, so match_dorar() gets the same hits and verdicts from the cache.
+            needle = json.dumps(best[1], ensure_ascii=False)[1:-1]
+            row = repo.conn().execute(
+                "SELECT key FROM dorar_cache WHERE endpoint = 'search' AND instr(response_json, ?) > 0 LIMIT 1",
+                (needle,)).fetchone()
+            query = row[0].split(":", 1)[1] if row else best[1]
+            st.detail["query"] = query
+            return query, best[0]
         except Exception as e:  # noqa: BLE001 - optional path
             st.status = "degraded"
             st.detail["reason"] = str(e)[:120]
@@ -351,7 +360,7 @@ def verify_claim(idx: int, claim: ExtractedClaim) -> ClaimResult:
         st.detail.update(n=len(gradings), aggregate=grade)
     with tr.step("score") as st:
         sc = sanad_score(ctype, c.match_type, confidence, grade if grade != "quran" else "unknown",
-                         attributed_to_prophet=(ctype == "hadith"))
+                         attributed_to_prophet=(ctype == "hadith"), cross_lang=(lang == "en"))
         st.detail.update(score=sc.score, status=sc.status, reasons=sc.reasons)
 
     # 5) alternatives for anything that is not verified

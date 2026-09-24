@@ -193,9 +193,15 @@ def classify(claim_norm: str, refs: dict[str, str], rerank: float | None, cross_
             best = c
     if best is None:
         best = Classification("not_found", 0.0, 0.0, 0.0, (0, 0))
-    # Meaning match (same language paraphrase, or any cross-language match such as English -> Arabic source).
-    if best.match_type == "not_found" and rerank is not None and rerank >= th.paraphrase_rerank_min:
-        best.match_type = "paraphrase"
+    # Meaning match. Cross-language (English claim -> Arabic source): the reranker decides. Same language: the
+    # reranker alone is not trustworthy (unrelated proverbs sharing a few words score > 0.9), so a paraphrase also
+    # needs a high score AND real word overlap; the pipeline never shows a same-language paraphrase as verified.
+    if best.match_type == "not_found" and rerank is not None:
+        if cross_lang and rerank >= th.paraphrase_rerank_min:
+            best.match_type = "paraphrase"
+        elif (not cross_lang and rerank >= get_settings().th_paraphrase_same_lang
+              and best.coverage >= get_settings().th_paraphrase_overlap):
+            best.match_type = "paraphrase"
     if best.match_type in ("not_found", "paraphrase"):
         best.diff = []
     if cross_lang and best.match_type in ("identical", "partial"):
