@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>سند AI — SanadAI</title>
+</head>
+<body style="font-family: system-ui, sans-serif; background:#E6F2EF; color:#0B3B3A; padding:2rem">
+  <h1>سند AI</h1>
+  <p>تحقّق من النصوص الدينية المتداولة قبل نشرها.</p>
+  <pre id="health">…</pre>
+  <script type="module">
+    const r = await fetch("/api/health");
+    document.getElementById("health").textContent = JSON.stringify(await r.json(), null, 2);
+  </script>
+</body>
+</html>

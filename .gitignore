@@ -1,0 +1,19 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# reproducible artifacts
+data/raw/*
+!data/raw/.gitkeep
+db/*.db
+db/*.db-*
+index/*
+!index/.gitkeep
+!db/.gitkeep
+
+.vscode/
+.idea/
+*.log
