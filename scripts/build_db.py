@@ -161,6 +161,7 @@ def main() -> int:
     t0 = time.time()
     con = sqlite3.connect(db_path)
     con.executescript("DROP TABLE IF EXISTS hadiths_fts; DROP TABLE IF EXISTS hadiths_en_fts; "
+                      "DROP TABLE IF EXISTS ayahs_en_fts; "
                       "DROP TABLE IF EXISTS ayahs_fts; DROP TABLE IF EXISTS gradings; "
                       "DROP TABLE IF EXISTS hadiths; DROP TABLE IF EXISTS ayahs;")
     con.executescript(SCHEMA.read_text(encoding="utf-8"))
@@ -170,6 +171,7 @@ def main() -> int:
         con.execute("INSERT INTO hadiths_fts(hadiths_fts) VALUES ('rebuild')")
         con.execute("INSERT INTO hadiths_en_fts(hadiths_en_fts) VALUES ('rebuild')")
         con.execute("INSERT INTO ayahs_fts(ayahs_fts) VALUES ('rebuild')")
+        con.execute("INSERT INTO ayahs_en_fts(ayahs_en_fts) VALUES ('rebuild')")
         con.execute("INSERT OR REPLACE INTO meta VALUES ('built_at', ?)", (datetime.now(UTC).isoformat(),))
     con.execute("VACUUM")
 

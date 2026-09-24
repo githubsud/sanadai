@@ -28,6 +28,7 @@ class QuranMatch:
     classification: cls.Classification | None
     occurrences: list[tuple[int, int]] = field(default_factory=list)   # other (start_id, end_id) with same text
     rerank: float | None = None
+    candidates: list[int] = field(default_factory=list)                 # fuzzy-retrieval ayah ids (for eval)
 
     def ayahs(self) -> list[dict]:
         return repo.get_ayah_range(self.start_id, self.end_id)
@@ -156,8 +157,13 @@ def match_quran(claim: str, lang: str | None = None, use_rerank: bool | None = N
             en = repo.get_ayah_by_id(cand.id)["text_en"] or ""
             c = cls.classify(norm, {"en": normalize_en(en)}, cand.rerank, cross_lang=True, strict=True)
             first = last = cand.id
-        m = QuranMatch(first, last, c.match_type, cand.confidence if c.match_type != "not_found" else 0.0, c,
+        conf = cand.confidence
+        if c.match_type in ("identical", "partial", "altered") or c.translation_quote:
+            conf = max(conf, c.span_similarity)
+        m = QuranMatch(first, last, c.match_type, conf if c.match_type != "not_found" else 0.0, c,
                        rerank=cand.rerank)
         if best is None or _key(m) > _key(best):
             best = m
+    if best:
+        best.candidates = [c.id for c in res.candidates]
     return best

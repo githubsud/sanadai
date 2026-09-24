@@ -44,6 +44,7 @@ class Classification:
     span: tuple[int, int]              # token span [start, end) in the reference tokens
     diff: list[dict] = field(default_factory=list)
     reference: str = "text"            # which reference text won: "matn" | "text" | "en"
+    translation_quote: bool = False    # the claim quotes the dataset's English translation (cross-language)
 
     def as_dict(self) -> dict:
         return {"match_type": self.match_type, "similarity": round(self.similarity, 4),
@@ -184,6 +185,10 @@ def classify(claim_norm: str, refs: dict[str, str], rerank: float | None, cross_
             continue
         c = compare(claim_norm, ref, strict=strict)
         c.reference = name
+        if name == "en" and c.match_type == "altered":
+            # an English TRANSLATION is not the sacred text: lexical "altered wording" against it is meaningless;
+            # only a quote of the translation (identical/partial) or a meaning match (reranker) counts.
+            c.match_type, c.diff = "not_found", []
         if best is None or (RANK[c.match_type], c.span_similarity) > (RANK[best.match_type], best.span_similarity):
             best = c
     if best is None:
@@ -193,6 +198,9 @@ def classify(claim_norm: str, refs: dict[str, str], rerank: float | None, cross_
         best.match_type = "paraphrase"
     if best.match_type in ("not_found", "paraphrase"):
         best.diff = []
-    if cross_lang and best.match_type == "identical" and best.reference != "en":
-        best.match_type = "paraphrase"  # defensive: an English claim can't be identical to Arabic text
+    if cross_lang and best.match_type in ("identical", "partial"):
+        # An English claim is never "identical" to the Arabic sacred text. Quoting the dataset translation is a
+        # cross-language (meaning) match; its lexical similarity still counts as confidence.
+        best.translation_quote = best.reference == "en"
+        best.match_type, best.diff = "paraphrase", []
     return best

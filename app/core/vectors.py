@@ -4,7 +4,7 @@ from functools import lru_cache
 
 from app.config import get_settings
 
-COLLECTION_NAMES = ("ayah_ar", "ayah_en", "hadith_ar", "hadith_en")
+COLLECTION_NAMES = ("ayah_ar", "ayah_en", "hadith_ar", "hadith_en", "dorar_ar")
 # Core books indexed in DEMO_SUBSET mode. Lexical (FTS5) search always covers every collection.
 DEMO_HADITH_COLLECTIONS = ["bukhari", "muslim", "nawawi", "qudsi", "dehlawi"]
 
@@ -33,8 +33,12 @@ def index_counts() -> dict[str, int]:
 
 def query(name: str, vec: list[float], k: int = 50) -> list[tuple[int, float]]:
     """[(sqlite_id, cosine_similarity)] best first. Empty if the collection is missing/empty."""
+    return [(int(i), sim) for i, sim in query_raw(name, vec, k)]
+
+
+def query_raw(name: str, vec: list[float], k: int = 50) -> list[tuple[str, float]]:
     col = get_collection(name)
     if col.count() == 0:
         return []
     res = col.query(query_embeddings=[vec], n_results=min(k, col.count()), include=["distances"])
-    return [(int(i), 1.0 - d) for i, d in zip(res["ids"][0], res["distances"][0], strict=True)]
+    return [(i, 1.0 - d) for i, d in zip(res["ids"][0], res["distances"][0], strict=True)]

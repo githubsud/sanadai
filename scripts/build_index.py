@@ -24,8 +24,30 @@ from app.core.vectors import COLLECTION_NAMES, DEMO_HADITH_COLLECTIONS, get_coll
 from app.db import repo  # noqa: E402
 
 
+def dorar_rows() -> list[tuple[str, str]]:
+    """Distinct texts from cached Dorar search responses -> dorar_texts table (normalized text is embedded)."""
+    import hashlib
+    import json
+
+    from app.core.normalize import normalize_ar
+
+    c = repo.conn()
+    seen: dict[str, tuple[str | None, str]] = {}
+    for (js,) in c.execute("SELECT response_json FROM dorar_cache WHERE endpoint = 'search'"):
+        for h in json.loads(js):
+            t = (h.get("text") or "").strip()
+            if t:
+                seen.setdefault(hashlib.sha1(t.encode()).hexdigest()[:20], (h.get("hadith_id"), t))
+    c.executemany("INSERT OR IGNORE INTO dorar_texts (key, hadith_id, text) VALUES (?,?,?)",
+                  [(k, hid, t) for k, (hid, t) in seen.items()])
+    c.commit()
+    return [(k, normalize_ar(t)) for k, (_hid, t) in seen.items()]
+
+
 def rows_for(name: str, demo: bool, collections: list[str] | None) -> list[tuple[str, str]]:
     c = repo.conn()
+    if name == "dorar_ar":
+        return dorar_rows()
     if name == "ayah_ar":
         sql, args = "SELECT id, text_norm FROM ayahs ORDER BY id", []
     elif name == "ayah_en":

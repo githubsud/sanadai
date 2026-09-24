@@ -104,8 +104,8 @@ def retrieve(text: str, kind: str = "hadith", lang: str | None = None, top_k: in
     # 1) lexical
     t = time.perf_counter()
     if kind == "ayah":
-        hits = repo.fts_ayahs(q_ar, s.lexical_k) if lang == "ar" else []
-        lists["lex_ar"] = [i for i, _ in hits]
+        hits = repo.fts_ayahs(q_ar, s.lexical_k) if lang == "ar" else repo.fts_ayahs(q_en, s.lexical_k, "en")
+        lists["lex_ar" if lang == "ar" else "lex_en"] = [i for i, _ in hits]
         bm25.update(hits)
     else:
         if lang == "ar":

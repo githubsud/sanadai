@@ -118,12 +118,13 @@ def all_ayahs(field: str = "text_norm") -> list[tuple[int, int, int, str]]:
     return [tuple(r) for r in conn().execute(f"SELECT id, surah, ayah, {field} FROM ayahs ORDER BY id")]
 
 
-def fts_ayahs(text_norm: str, limit: int = 50) -> list[tuple[int, float]]:
+def fts_ayahs(text_norm: str, limit: int = 50, lang: str = "ar") -> list[tuple[int, float]]:
     q = _fts_query(text_norm)
     if not q:
         return []
+    table = "ayahs_fts" if lang == "ar" else "ayahs_en_fts"
     return [(r[0], r[1]) for r in conn().execute(
-        "SELECT rowid, bm25(ayahs_fts) FROM ayahs_fts WHERE ayahs_fts MATCH ? ORDER BY bm25(ayahs_fts) LIMIT ?",
+        f"SELECT rowid, bm25({table}) FROM {table} WHERE {table} MATCH ? ORDER BY bm25({table}) LIMIT ?",
         (q, limit)).fetchall()]
 
 

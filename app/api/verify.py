@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import binascii
 
@@ -24,5 +25,9 @@ async def verify(req: VerifyRequest) -> VerifyResponse:
             base64.b64decode(b64[:64] + "=" * (-len(b64[:64]) % 4), validate=True)
         except (binascii.Error, ValueError) as e:
             raise HTTPException(422, "image_base64 is not valid base64") from e
-    # CPU-bound (retrieval, reranking): keep the event loop free.
-    return await run_in_threadpool(pipeline.verify, req.text, req.image_base64, req.lang_hint)
+    # CPU-bound (retrieval, reranking): keep the event loop free; bound the wait.
+    try:
+        return await asyncio.wait_for(run_in_threadpool(pipeline.verify, req.text, req.image_base64, req.lang_hint),
+                                      timeout=s.request_timeout_s)
+    except TimeoutError as e:
+        raise HTTPException(504, "verification took too long — try a shorter text") from e

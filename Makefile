@@ -1,7 +1,7 @@
 # Unix/macOS convenience targets. Windows: use scripts/*.ps1 (same steps).
 PY ?= .venv/bin/python
 
-.PHONY: setup data db index seed run test lint eval all
+.PHONY: setup data db models index seed run test lint eval testset all
 
 setup:
 	python3 -m venv .venv
@@ -14,6 +14,9 @@ data:
 
 db:
 	$(PY) scripts/build_db.py
+
+models:
+	$(PY) scripts/fetch_models.py
 
 index:
 	$(PY) scripts/build_index.py
@@ -30,7 +33,10 @@ test:
 lint:
 	$(PY) -m ruff check .
 
+testset:
+	$(PY) scripts/build_testset.py
+
 eval:
 	$(PY) scripts/run_eval.py
 
-all: data db index seed
+all: data db models index seed

@@ -1,6 +1,10 @@
+import os
+
 import pytest
 
-from app.db import repo
+os.environ.setdefault("WARM_UP", "false")  # no background model loading during tests
+
+from app.db import repo  # noqa: E402
 
 
 @pytest.fixture(scope="session")

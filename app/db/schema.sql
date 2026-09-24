@@ -58,6 +58,13 @@ CREATE TABLE IF NOT EXISTS dorar_cache (
     fetched_at    TEXT NOT NULL
 );
 
+-- Distinct hadith texts seen in cached Dorar responses (for cross-lingual lookup; vectors in Chroma "dorar_ar").
+CREATE TABLE IF NOT EXISTS dorar_texts (
+    key       TEXT PRIMARY KEY,                -- sha1 of the text
+    hadith_id TEXT,
+    text      TEXT NOT NULL
+);
+
 -- Synthetic/test runs only. No PII: input is stored only as a hash.
 CREATE TABLE IF NOT EXISTS checks (
     id          TEXT PRIMARY KEY,
@@ -72,6 +79,9 @@ CREATE VIRTUAL TABLE IF NOT EXISTS hadiths_fts USING fts5(
 );
 CREATE VIRTUAL TABLE IF NOT EXISTS hadiths_en_fts USING fts5(
     text_en_norm, content='hadiths', content_rowid='id', tokenize='porter unicode61'
+);
+CREATE VIRTUAL TABLE IF NOT EXISTS ayahs_en_fts USING fts5(
+    text_en, content='ayahs', content_rowid='id', tokenize='porter unicode61'
 );
 CREATE VIRTUAL TABLE IF NOT EXISTS ayahs_fts USING fts5(
     text_norm, content='ayahs', content_rowid='id', tokenize='unicode61 remove_diacritics 0'

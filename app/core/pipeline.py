@@ -18,6 +18,8 @@ from dataclasses import dataclass, field
 from app.config import get_settings
 from app.core import alternatives as alts
 from app.core import classify as cls
+from app.core import models as ml
+from app.core import vectors
 from app.core.extract import extract_claims, ocr_image
 from app.core.matn import find_excerpt
 from app.core.normalize import detect_lang, normalize_ar, normalize_en
@@ -117,8 +119,9 @@ def match_hadith(claim: str, lang: str, tr: Tracer) -> HadithMatch | None:
             h = rows.get(cand.id)
             if not h:
                 continue
-            c = cls.classify(norm, _hadith_refs(h, lang), cand.rerank, cross_lang=False)
-            lexical = c.span_similarity if c.match_type in ("identical", "partial", "altered") else 0.0
+            c = cls.classify(norm, _hadith_refs(h, lang), cand.rerank, cross_lang=(lang == "en"))
+            lexical = c.span_similarity if (c.match_type in ("identical", "partial", "altered")
+                                            or c.translation_quote) else 0.0
             conf = max(cand.rerank or 0.0, lexical) if rerank_known else lexical
             m = HadithMatch(cand.id, c, conf)
             if best is None or _key(m) > _key(best):
@@ -128,16 +131,18 @@ def match_hadith(claim: str, lang: str, tr: Tracer) -> HadithMatch | None:
     with tr.step("retrieve", mode="lexical") as st:
         res = retrieve(claim, kind="hadith", lang=lang, top_k=8, use_rerank=False, use_dense=False)
         st.detail["candidates"] = len(res.candidates)
+        st.detail["top_ids"] = [c.id for c in res.candidates[:5]]
     with tr.step("classify", pass_="lexical") as st:
         consider(res, rerank_known=False)
         st.detail["best"] = best.c.match_type if best else None
-    if best and best.c.match_type in ("identical", "partial"):
+    if best and (best.c.match_type in ("identical", "partial") or best.c.translation_quote):
         return best
 
     # Pass 2: hybrid + reranker (meaning / paraphrase / cross-language).
     with tr.step("retrieve", mode="hybrid") as st:
         res = retrieve(claim, kind="hadith", lang=lang, top_k=5)
         st.detail.update(candidates=len(res.candidates), dense=res.used_dense, rerank=res.used_rerank,
+                         top_ids=[c.id for c in res.candidates[:5]],
                          timings_ms={k: round(v) for k, v in res.timings_ms.items()})
         if not res.used_rerank:
             st.status = "degraded"
@@ -171,11 +176,44 @@ def match_dorar(claim_ar: str, tr: Tracer) -> DorarMatch | None:
             c = cls.compare(norm, normalize_ar(h.text))
             scored.append((cls.RANK[c.match_type], round(c.coverage, 2), c.span_similarity, h, c))
         scored.sort(key=lambda x: x[:3], reverse=True)
-        matching = [h for r, _cov, _s, h, _c in scored if r >= cls.RANK["altered"]]
+        # Gradings belong to the text AS CIRCULATED: keep only hits matching at the best level (e.g. only the
+        # identical hits), not longer / different hadith that merely share words with it.
+        best_rank = scored[0][0] if scored else 0
+        matching = [h for r, _cov, _s, h, _c in scored if r >= cls.RANK["altered"] and r == best_rank]
         best = scored[0] if scored and scored[0][0] >= cls.RANK["altered"] else None
         st.detail.update(results=len(hits), matching=len(matching),
+                         top_ids=[h.hadith_id for h, _c in ((x[3], x[4]) for x in scored[:5])],
                          best_match=best[4].match_type if best else "not_found")
         return DorarMatch(hits, matching, best[3] if best else None, best[4] if best else None)
+
+
+def cross_lingual_dorar(claim_en: str, tr: Tracer) -> tuple[str, float] | None:
+    """English claim -> the Arabic text of a cached Dorar hadith with the same meaning (bge-m3 + reranker).
+
+    Only texts already in the Dorar cache can be found this way (Dorar's search is Arabic-only)."""
+    s = get_settings()
+    with tr.step("dorar", mode="cross_lingual") as st:
+        try:
+            if not s.use_dense or not vectors.index_counts().get("dorar_ar"):
+                st.status = "skipped"
+                return None
+            hits = vectors.query_raw("dorar_ar", ml.embed([claim_en])[0], 8)
+            keys = [k for k, _ in hits]
+            rows = {r[0]: r[1] for r in repo.conn().execute(
+                f"SELECT key, text FROM dorar_texts WHERE key IN ({','.join('?' * len(keys))})", keys)}
+            texts = [rows[k] for k in keys if k in rows]
+            if not texts:
+                return None
+            scores = ml.rerank(claim_en, texts) if s.use_reranker else [sim for _, sim in hits][: len(texts)]
+            best = max(zip(scores, texts, strict=True))
+            st.detail.update(candidates=len(texts), best_score=round(best[0], 3))
+            if best[0] < s.th_paraphrase_rerank:
+                return None
+            return best[1], best[0]
+        except Exception as e:  # noqa: BLE001 - optional path
+            st.status = "degraded"
+            st.detail["reason"] = str(e)[:120]
+            return None
 
 
 def _dorar_gradings(hits: list[DorarHadith]) -> list[dict]:
@@ -230,7 +268,8 @@ def verify_claim(idx: int, claim: ExtractedClaim) -> ClaimResult:
         else:
             st.status = "skipped"
         if qm:
-            st.detail.update(match=qm.match_type, ref=qm.ref()["ref"] if qm.match_type != "not_found" else None)
+            st.detail.update(match=qm.match_type, ref=qm.ref()["ref"] if qm.match_type != "not_found" else None,
+                             top_ids=[qm.start_id] + [c for c in qm.candidates if c != qm.start_id][:4])
     if qm and qm.match_type != "not_found" and (ctype == "quran" or qm.match_type in ("identical", "partial")):
         if ctype != "quran":
             notes.append("retyped_as_quran")
@@ -271,6 +310,12 @@ def verify_claim(idx: int, claim: ExtractedClaim) -> ClaimResult:
         local_exact = good_local and c.match_type in ("identical", "partial")
         need_dorar = (not local_exact) or not gradings or aggregate_grade(gradings) == "unknown"
         claim_ar = claim.text if lang == "ar" else (source.text_ar if source else None)
+        xl_score = None
+        if need_dorar and lang == "en" and not good_local:
+            xl = cross_lingual_dorar(claim.text, tr)
+            if xl:
+                claim_ar, xl_score = xl
+                notes.append("matched_via_dorar_cross_lingual")
         if need_dorar and claim_ar:
             dm = match_dorar(claim_ar, tr)
             if dm and dm.best is not None:
@@ -285,7 +330,8 @@ def verify_claim(idx: int, claim: ExtractedClaim) -> ClaimResult:
                         notes.append("gradings_from_dorar")
                 else:
                     c = dm.c if lang == "ar" else cls.Classification("paraphrase", 0, 0, 0, (0, 0))
-                    confidence = c.span_similarity if c.match_type != "paraphrase" else (hm.confidence if hm else 0.5)
+                    confidence = c.span_similarity if c.match_type != "paraphrase" else (
+                        xl_score if xl_score is not None else (hm.confidence if hm else 0.5))
                     b = dm.best
                     source = SourceRef(kind="dorar", collection=b.book, number=b.number_or_page, narrator=b.rawi,
                                        text_ar=b.text, url=b.url, provider="dorar.net")

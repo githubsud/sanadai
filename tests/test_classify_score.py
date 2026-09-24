@@ -78,7 +78,7 @@ def test_cross_language_never_identical_to_arabic():
     c = classify("seek knowledge", {"text": "seek knowledge"}, rerank=0.9, cross_lang=True)
     assert c.match_type == "paraphrase"
     c = classify("seek knowledge", {"en": "seek knowledge"}, rerank=0.9, cross_lang=True)
-    assert c.match_type == "identical"
+    assert c.match_type == "paraphrase" and c.translation_quote
 
 
 def test_best_window_finds_excerpt():

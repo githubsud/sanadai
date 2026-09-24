@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     dorar_timeout_s: float = 8.0
 
     max_input_chars: int = 5000
+    request_timeout_s: float = 180.0
+    warm_up: bool = True
     max_image_bytes: int = 5_000_000
 
     def resolve(self, p: Path) -> Path:
