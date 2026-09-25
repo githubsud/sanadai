@@ -43,6 +43,13 @@ Owner decisions applied, Gemini live-tested, pushed to https://github.com/github
 8. LICENSE: Ahmed Abayazid Mussaad (SanadAI). Publish to https://github.com/githubsud (repo: sanadai) — needs the
    empty repository to be created (no gh CLI on this machine). Demo video: owner records per DEMO_SCRIPT.md.
 
+## Online deployment (2026-09-25)
+- HF dataset huggingfacesud/sanadai-data published (DB without `checks` rows + Chroma index).
+- HF Docker Space refused: Docker/Gradio Spaces on free CPU now require PRO. Owner chose the free option →
+  Render free "lite" (render.yaml, requirements-lite.txt): no torch/chromadb; tested locally in a clean venv:
+  build 1.1 min, ~86 MB RAM, correct statuses (fabricated red 30, Quran green, Bukhari green 90, weak amber).
+- Gemini free-tier quota (429) reached during tests → graceful rule-based fallback; UI now explains it.
+
 ## Decisions
 - 2026-09-24: venv on Python 3.12 (3.13 also installed) for best torch/chromadb wheel compatibility.
 - 2026-09-24: No NVIDIA GPU detected on dev laptop → CPU embeddings; DEMO_SUBSET is the default dev path.

@@ -251,6 +251,10 @@ function renderResults(r, scroll = true) {
   const box = $("claims");
   box.innerHTML = "";
   $("resultsMeta").textContent = `${t("claims_found", r.claims.length)} · ${t(r.extraction_method === "llm" ? "method_llm" : "method_rules")}`;
+  // Explain degraded runs (image not read, AI limit reached) instead of a silent "no claims".
+  const notice = ["ocr_unavailable", "llm_rate_limited"].filter((n) => r.notes.includes(n)).map((n) => t("notice." + n));
+  $("resultsNotice").textContent = notice.join(" ");
+  show("resultsNotice", notice.length > 0);
   show("prepareBtn", r.claims.length > 0);
   if (!r.claims.length) {
     box.innerHTML = `<div class="empty">${esc(t("no_claims"))}</div>`;

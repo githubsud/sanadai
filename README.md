@@ -70,6 +70,17 @@ git clone https://github.com/githubsud/sanadai.git && cd sanadai
   fresh clone works offline; `seed_dorar.py` refreshes it from the network.
 - `make test` / `pytest -q` — 179 tests (2 model-based ones run with `RUN_SLOW=1`); `python scripts/run_eval.py` — evaluation (see below).
 
+## Deploy online
+
+| Option | Cost | What runs |
+|---|---|---|
+| **Render (free)** — `render.yaml` blueprint | free (512 MB, sleeps after 15 min idle) | *Lite*: lexical search (SQLite FTS5) + Gemini extraction/OCR + Dorar cache; no neural retrieval models (`requirements-lite.txt`, ~90 MB RAM) |
+| **Docker** — `Dockerfile` (Hugging Face Spaces, any VM) | HF Docker Spaces need PRO | Full app incl. bge-m3 + reranker; data from `huggingfacesud/sanadai-data` |
+
+Render: dashboard → **New → Blueprint** → select this repository → enter `GEMINI_API_KEY` when asked → Apply.
+Public limits (per visitor): 60 verifications/hour, 20 AI calls/hour, 500 AI calls/day overall; beyond them the
+rule-based extractor is used.
+
 ## Architecture
 
 ```mermaid

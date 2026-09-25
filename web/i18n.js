@@ -90,6 +90,10 @@ const STRINGS = {
     lang_toggle: "English",
     steps: ["قراءة النص", "استخراج الادعاءات", "البحث في المصادر", "مقارنة الألفاظ", "أحكام العلماء", "حساب الدرجة"],
     other_occ: "ورد النص نفسه أيضًا في",
+    notice: {
+      ocr_unavailable: "تعذّرت قراءة الصورة الآن (خدمة الذكاء الاصطناعي غير متاحة أو بلغت حدّها). الصق نص المنشور بدلًا منها.",
+      llm_rate_limited: "بلغتَ حدّ استخدام الذكاء الاصطناعي مؤقتًا؛ استُخدم المستخرج بالقواعد.",
+    },
     gc: { sahih: "صحيح", hasan: "حسن", daif: "ضعيف", mawdu: "موضوع/لا أصل له", unknown: "غير مصنّف" },
     src: { collection_inclusion: "إدراجه في الصحيح", dorar_net: "الدرر السنية dorar.net",
       fawazahmed0_hadith_api_1: "fawazahmed0/hadith-api (sunnah.com)" },
@@ -205,6 +209,10 @@ const STRINGS = {
     lang_toggle: "العربية",
     steps: ["Reading", "Extracting claims", "Searching sources", "Comparing wording", "Scholars' gradings", "Scoring"],
     other_occ: "The same text also occurs at",
+    notice: {
+      ocr_unavailable: "The image could not be read right now (AI service unavailable or at its limit). Paste the post text instead.",
+      llm_rate_limited: "AI usage limit reached for now; the rule-based extractor was used.",
+    },
     gc: { sahih: "Sahih", hasan: "Hasan", daif: "Weak", mawdu: "Fabricated/baseless", unknown: "Unclassified" },
     src: { collection_inclusion: "inclusion in the Sahih", dorar_net: "Dorar.net",
       fawazahmed0_hadith_api_1: "fawazahmed0/hadith-api (sunnah.com)" },
