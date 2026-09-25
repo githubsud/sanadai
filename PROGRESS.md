@@ -48,6 +48,10 @@ Owner decisions applied, Gemini live-tested, pushed to https://github.com/github
 - HF Docker Space refused: Docker/Gradio Spaces on free CPU now require PRO. Owner chose the free option →
   Render free "lite" (render.yaml, requirements-lite.txt): no torch/chromadb; tested locally in a clean venv:
   build 1.1 min, ~86 MB RAM, correct statuses (fabricated red 30, Quran green, Bukhari green 90, weak amber).
+- LIVE: https://sanadai-zl6q.onrender.com (Render service srv-dar9osbncjis73cltfvg, auto-deploys from GitHub main).
+  Verified live: health ok (50,703 hadith, Dorar reachable from Render), fabricated red 30 / Quran green 100 /
+  Bukhari green 90 / weak amber 75, prepare validated, UI renders with no page errors.
+  Lite limitation: the English headline example is "not found" (no cross-lingual models in lite).
 - Gemini free-tier quota (429) reached during tests → graceful rule-based fallback; UI now explains it.
 
 ## Decisions

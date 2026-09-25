@@ -12,11 +12,17 @@
 
 مشاركة فردية في **تحدي الذكاء الاصطناعي في خدمة المحتوى الإسلامي** — مسار «أدوات المعرفة والتحقق لتمكين المعرّفين بالإسلام».
 
+**🌐 النسخة التجريبية على الإنترنت: https://sanadai-zl6q.onrender.com**
+(خطة مجانية: قد تستغرق أول زيارة بعد فترة خمول نحو دقيقة)
+
 </div>
 
 ---
 
 # SanadAI — verify before you share
+
+**🌐 Live demo: https://sanadai-zl6q.onrender.com** — free "lite" deployment (lexical search + Gemini + Dorar;
+the first visit after idle takes ~1 minute). The full version with neural retrieval runs locally or via `Dockerfile`.
 
 **SanadAI** helps da'is and Islamic content creators check circulating posts. Paste a post (or drop a screenshot) in
 Arabic or English; SanadAI extracts every Quran verse, hadith and attributed saying, retrieves the **original Arabic
