@@ -109,12 +109,18 @@ def _key(m: HadithMatch) -> tuple:
     return (cls.RANK[m.c.match_type], round(m.c.coverage, 2), round(m.c.span_similarity, 3), m.confidence)
 
 
+# Secondary compilations that quote the primary collections (and carry no per-hadith gradings in the datasets):
+# when a primary collection matches the claim cleanly too, the primary source is cited.
+SECONDARY_COLLECTIONS = {"riyadussalihin", "mishkat", "bulugh", "nawawi", "qudsi", "dehlawi"}
+
+
 def match_hadith(claim: str, lang: str, tr: Tracer) -> HadithMatch | None:
     norm = normalize_ar(claim) if lang == "ar" else normalize_en(claim)
     best: HadithMatch | None = None
+    best_primary: HadithMatch | None = None
 
     def consider(res, rerank_known: bool):
-        nonlocal best
+        nonlocal best, best_primary
         rows = repo.get_hadiths([c.id for c in res.candidates])
         for cand in res.candidates:
             h = rows.get(cand.id)
@@ -127,6 +133,12 @@ def match_hadith(claim: str, lang: str, tr: Tracer) -> HadithMatch | None:
             m = HadithMatch(cand.id, c, conf)
             if best is None or _key(m) > _key(best):
                 best = m
+            if h["collection"] not in SECONDARY_COLLECTIONS and (best_primary is None or _key(m) > _key(best_primary)):
+                best_primary = m
+        if (best and best_primary and best is not best_primary
+                and repo.get_hadith(best.hadith_id)["collection"] in SECONDARY_COLLECTIONS
+                and best_primary.c.match_type in ("identical", "partial")):
+            best = best_primary
 
     # Pass 1: lexical only (fast). An exact / excerpt match needs no meaning model.
     with tr.step("retrieve", mode="lexical") as st:

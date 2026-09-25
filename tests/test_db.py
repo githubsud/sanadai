@@ -15,8 +15,8 @@ client = TestClient(app)
 def test_counts(db_ready):
     c = repo.conn()
     assert c.execute("SELECT COUNT(*) FROM ayahs").fetchone()[0] == 6236
-    assert c.execute("SELECT COUNT(*) FROM hadiths").fetchone()[0] > 35000
-    assert c.execute("SELECT COUNT(DISTINCT collection) FROM hadiths").fetchone()[0] == 10
+    assert c.execute("SELECT COUNT(*) FROM hadiths").fetchone()[0] > 50000
+    assert c.execute("SELECT COUNT(DISTINCT collection) FROM hadiths").fetchone()[0] == 17
 
 
 def test_quran_text_is_verbatim_tanzil(db_ready):

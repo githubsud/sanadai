@@ -33,7 +33,7 @@ flowchart LR
 |---|---|---|
 | API | `app/api/*.py` | FastAPI routers: `verify`, `prepare`, `lookup` (`/api/hadith/{id}`, `/api/ayah/{s}/{a}`), `health`, `eval/latest`. OpenAPI at `/docs`. |
 | Orchestration | `app/core/pipeline.py` | Runs the per-claim steps, records an **evidence trace** (step, status, timing, candidate ids). |
-| Extraction | `app/core/extract.py`, `app/llm/*` | Claude (structured JSON output, effort low) behind a swappable `LLMProvider`; Pydantic validation, one retry, then a rule-based extractor. Every LLM span must exist verbatim in the post, or it is dropped. OCR of screenshots via the same provider. |
+| Extraction | `app/core/extract.py`, `app/llm/*` | Claude or Gemini (structured JSON output) behind a swappable `LLMProvider`; Pydantic validation, one retry, then a rule-based extractor. Every LLM span must exist verbatim in the post, or it is dropped. OCR of screenshots via the same provider. |
 | Normalization | `app/core/normalize.py` | Pure functions: tashkeel/Quranic marks/tatweel removal, letter unification, punctuation and honorific stripping — for matching only. |
 | Quran | `app/core/quran_match.py` | Exact search over the whole Quran as one token stream (quotes spanning consecutive verses, repeated verses), in both the imlaʾi (simple-clean) and Uthmani spellings; fuzzy windows for altered quotes; meaning/translation via retrieval. |
 | Retrieval | `app/core/retrieve.py`, `app/core/vectors.py`, `app/core/models.py` | FTS5 BM25 (Arabic + English), bge-m3 dense vectors in Chroma, Reciprocal Rank Fusion (k=60), bge-reranker-v2-m3 cross-encoder. Lexical-first fast path: the reranker runs only when no exact/excerpt match exists. |
@@ -47,7 +47,7 @@ flowchart LR
 ## Data & storage
 
 - **SQLite `db/sanad.db`** — source of truth for texts: `ayahs` (Tanzil Uthmani + simple-clean verbatim, Saheeh
-  International, separate Basmala), `hadiths` (10 collections, Arabic + English, verbatim matn substring), `gradings`
+  International, separate Basmala), `hadiths` (50,703 hadith, 17 collections, Arabic + English, verbatim matn substring), `gradings`
   (82k quoted verdicts with grader + provenance), FTS5 tables, `dorar_cache`, `dorar_texts`, `checks`.
 - **Chroma `index/chroma`** — vectors only (`ayah_ar`, `ayah_en`, `hadith_ar`, optional `hadith_en`, `dorar_ar`);
   ids are SQLite ids.

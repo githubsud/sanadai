@@ -23,6 +23,7 @@ class Thresholds:
     partial_span_min: float = 0.90
     partial_coverage_min: float = 0.60
     altered_min: float = 0.60
+    altered_coverage_min: float = 0.50
     paraphrase_rerank_min: float = 0.50
     min_claim_tokens: int = 2
 
@@ -31,7 +32,8 @@ def thresholds() -> Thresholds:
     s = get_settings()
     return Thresholds(
         identical_min=s.th_identical, partial_span_min=s.th_partial_span, partial_coverage_min=s.th_partial_coverage,
-        altered_min=s.th_altered, paraphrase_rerank_min=s.th_paraphrase_rerank,
+        altered_min=s.th_altered, altered_coverage_min=s.th_altered_coverage,
+        paraphrase_rerank_min=s.th_paraphrase_rerank,
     )
 
 
@@ -164,8 +166,8 @@ def compare(claim_norm: str, ref_norm: str, strict: bool = False) -> Classificat
     elif clean and cov >= th.partial_coverage_min and span_sim >= th.partial_span_min:
         whole_source = (e - s) >= len(r_tok) * th.identical_min or whole >= th.identical_min
         mtype = "identical" if whole_source else "partial"
-    elif span_sim >= th.altered_min:
-        mtype = "altered"
+    elif span_sim >= th.altered_min and cov >= th.altered_coverage_min:
+        mtype = "altered"  # an altered QUOTE must still cover most of the claim (not 2 shared words)
     else:
         mtype = "not_found"
     return Classification(mtype, whole, span_sim, cov, (s, e), diff)

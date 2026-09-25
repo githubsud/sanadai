@@ -4,6 +4,9 @@ For every query: Dorar search (cached) + the «الصحيح البديل» page 
 Writes data/seeds/seed_report.jsonl with exactly what Dorar returned, for the owner's review.
 
     python scripts/seed_dorar.py [--limit N]
+    python scripts/seed_dorar.py --export   # write the cache to data/seeds/dorar_cache.jsonl (committed)
+
+The exported cache is imported by scripts/build_db.py, so a fresh clone works offline without contacting Dorar.
 """
 
 import argparse
@@ -20,6 +23,20 @@ from app.sources.dorar import DorarClient, DorarUnavailable  # noqa: E402
 
 SEEDS = ROOT / "data" / "seeds" / "circulating.txt"
 REPORT = ROOT / "data" / "seeds" / "seed_report.jsonl"
+EXPORT = ROOT / "data" / "seeds" / "dorar_cache.jsonl"
+
+
+def export_cache() -> int:
+    from app.db import repo
+
+    rows = repo.conn().execute(
+        "SELECT key, endpoint, response_json, fetched_at FROM dorar_cache ORDER BY key").fetchall()
+    with EXPORT.open("w", encoding="utf-8", newline="\n") as f:
+        for r in rows:
+            f.write(json.dumps({"key": r[0], "endpoint": r[1], "response": json.loads(r[2]), "fetched_at": r[3]},
+                               ensure_ascii=False) + "\n")
+    print(f"exported {len(rows)} cache entries -> {EXPORT}")
+    return 0
 
 
 def load_seeds() -> list[tuple[str, str]]:
@@ -41,8 +58,11 @@ def best_hit(query: str, hits):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int)
+    ap.add_argument("--export", action="store_true", help="export the Dorar cache for the repository")
     a = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
+    if a.export:
+        return export_cache()
     seeds = load_seeds()[: a.limit]
     cli = DorarClient(offline=False)
     counts: dict[str, int] = {}
@@ -72,7 +92,7 @@ def main() -> int:
                   f"| {top.get('mohdith', '')} | {top.get('grade', '')[:40]}", flush=True)
     print("summary:", counts)
     print(f"report: {REPORT}")
-    return 0
+    return export_cache()
 
 
 if __name__ == "__main__":

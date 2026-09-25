@@ -80,13 +80,102 @@ class AnthropicProvider:
             raise LLMError(f"invalid JSON: {e}") from e
 
 
+def to_gemini_schema(schema: dict) -> dict:
+    """JSON Schema -> the OpenAPI subset Gemini's responseSchema accepts (no additionalProperties, nullable)."""
+    out: dict = {}
+    for k, v in schema.items():
+        if k == "additionalProperties":
+            continue
+        if k == "type" and isinstance(v, list):
+            types = [t for t in v if t != "null"]
+            out["type"] = types[0].upper() if types else "STRING"
+            if "null" in v:
+                out["nullable"] = True
+        elif k == "type":
+            out["type"] = v.upper()
+        elif k == "properties":
+            out["properties"] = {name: to_gemini_schema(sub) for name, sub in v.items()}
+        elif k == "items":
+            out["items"] = to_gemini_schema(v)
+        else:
+            out[k] = v
+    return out
+
+
+class GeminiProvider:
+    """Google Gemini via its REST API (generateContent, JSON response schema). Same narrow use as above."""
+
+    name = "gemini"
+    BASE = "https://generativelanguage.googleapis.com/v1beta"
+
+    def __init__(self, api_key: str | None = None, model: str | None = None, timeout: float = 45.0):
+        s = get_settings()
+        self.api_key = api_key if api_key is not None else s.gemini_api_key
+        self.model = model or s.gemini_model
+        self.timeout = timeout
+
+    @property
+    def available(self) -> bool:
+        return bool(self.api_key)
+
+    @staticmethod
+    def _parts(content: list[dict]) -> list[dict]:
+        parts = []
+        for block in content:
+            if block["type"] == "text":
+                parts.append({"text": block["text"]})
+            elif block["type"] == "image":
+                src = block["source"]
+                parts.append({"inline_data": {"mime_type": src["media_type"], "data": src["data"]}})
+        return parts
+
+    def json(self, system: str, content: list[dict], schema: dict, max_tokens: int = 4096) -> dict:
+        if not self.available:
+            raise LLMError("GEMINI_API_KEY not configured")
+        import httpx
+
+        body = {
+            "systemInstruction": {"parts": [{"text": system}]},
+            "contents": [{"role": "user", "parts": self._parts(content)}],
+            "generationConfig": {"responseMimeType": "application/json", "responseSchema": to_gemini_schema(schema),
+                                 "maxOutputTokens": max_tokens, "temperature": 0},
+        }
+        try:
+            r = httpx.post(f"{self.BASE}/models/{self.model}:generateContent", json=body, timeout=self.timeout,
+                           headers={"x-goog-api-key": self.api_key})  # key in a header, never in the URL/logs
+        except httpx.HTTPError as e:
+            raise LLMError(f"connection error: {e}") from e
+        if r.status_code != 200:
+            msg = r.json().get("error", {}).get("message", "") if r.headers.get("content-type", "").startswith(
+                "application/json") else ""
+            raise LLMError(f"Gemini API error {r.status_code}: {msg[:200]}")
+        data = r.json()
+        if data.get("promptFeedback", {}).get("blockReason"):
+            raise LLMError("request blocked by the model's safety filter")
+        cands = data.get("candidates") or []
+        if not cands:
+            raise LLMError("empty response")
+        if cands[0].get("finishReason") == "MAX_TOKENS":
+            raise LLMError("output truncated (max tokens)")
+        text = "".join(p.get("text", "") for p in cands[0].get("content", {}).get("parts", []))
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError as e:
+            raise LLMError(f"invalid JSON: {e}") from e
+
+
 _provider: LLMProvider | None = None
 
 
 def get_provider() -> LLMProvider:
+    """LLM_PROVIDER=anthropic | gemini | auto (auto: whichever key is configured, Anthropic first)."""
     global _provider
     if _provider is None:
-        _provider = AnthropicProvider()
+        s = get_settings()
+        choice = s.llm_provider.lower()
+        if choice == "auto":
+            choice = "anthropic" if s.anthropic_api_key else ("gemini" if s.gemini_api_key else "anthropic")
+        _provider = GeminiProvider() if choice == "gemini" else AnthropicProvider()
     return _provider
 
 

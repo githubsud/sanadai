@@ -53,6 +53,11 @@ def test_altered_word_added():
     assert any(d["op"] == "insert" and "الدقيقه" in d["text"] for d in c.diff)
 
 
+def test_two_shared_words_are_not_an_altered_quote():
+    # a short fragment sharing 2 of 6 words (e.g. a book title inside a citation line) is not a match
+    assert compare("لا توجل عمل اليوم الي الغد ابدا", "عمل اليوم والليله").match_type == "not_found"
+
+
 def test_not_found_unrelated():
     assert compare("كلام اخر لا علاقه له بالموضوع مطلقا", SRC).match_type == "not_found"
 
@@ -116,7 +121,7 @@ def test_char_ratio_edges():
         ("hadith", "identical", 1.0, "daif", "amber", 75),
         ("hadith", "identical", 1.0, "unknown", "amber", 80),
         ("hadith", "altered", 0.9, "sahih", "amber", 71),
-        ("hadith", "identical", 1.0, "mawdu", "red", 70),
+        ("hadith", "identical", 1.0, "mawdu", "red", 30),  # red capped at 30
         ("hadith", "identical", 0.3, "sahih", "amber", 72),
         ("hadith", "not_found", 0.0, "unknown", "red", 0),
         ("saying", "not_found", 0.0, "unknown", "amber", 0),

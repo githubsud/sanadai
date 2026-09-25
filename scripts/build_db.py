@@ -22,6 +22,7 @@ from app.core.matn import extract_matn  # noqa: E402
 from app.core.normalize import normalize_ar, normalize_en  # noqa: E402
 
 RAW = ROOT / "data" / "raw"
+DORAR_EXPORT = ROOT / "data" / "seeds" / "dorar_cache.jsonl"
 SCHEMA = ROOT / "app" / "db" / "schema.sql"
 
 # collection key -> (display name ar, display name en, sunnah.com slug)
@@ -36,6 +37,17 @@ COLLECTIONS = {
     "nawawi": ("الأربعون النووية", "40 Hadith an-Nawawi", "nawawi40"),
     "qudsi": ("الأحاديث القدسية الأربعون", "40 Hadith Qudsi", "qudsi40"),
     "dehlawi": ("أربعون الدهلوي", "40 Hadith Shah Waliullah", "shahwaliullah40"),
+}
+
+# AhmedBaset/hadith-json books not covered by hadith-api (no per-hadith gradings: Dorar is consulted).
+JSON_BOOKS = {
+    "ahmed": ("ahmad", "مسند أحمد", "Musnad Ahmad", "ahmad"),
+    "darimi": ("darimi", "سنن الدارمي", "Sunan ad-Darimi", "darimi"),
+    "riyad_assalihin": ("riyadussalihin", "رياض الصالحين", "Riyad as-Salihin", "riyadussalihin"),
+    "aladab_almufrad": ("adab", "الأدب المفرد", "Al-Adab Al-Mufrad", "adab"),
+    "bulugh_almaram": ("bulugh", "بلوغ المرام", "Bulugh al-Maram", "bulugh"),
+    "mishkat_almasabih": ("mishkat", "مشكاة المصابيح", "Mishkat al-Masabih", "mishkat"),
+    "shamail_muhammadiyah": ("shamail", "الشمائل المحمدية", "Ash-Shama'il Al-Muhammadiyah", "shamail"),
 }
 
 # Collections whose every hadith is authentic by the compiler's stated condition. We record this as an
@@ -154,6 +166,52 @@ def build_hadiths(con: sqlite3.Connection) -> dict[str, int]:
     return counts
 
 
+def import_dorar_cache(con: sqlite3.Connection) -> int:
+    """Load the committed Dorar cache export (never overwrites newer local entries)."""
+    if not DORAR_EXPORT.exists():
+        return 0
+    rows = []
+    for line in DORAR_EXPORT.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            d = json.loads(line)
+            rows.append((d["key"], d["endpoint"], json.dumps(d["response"], ensure_ascii=False), d["fetched_at"]))
+    con.executemany("INSERT OR IGNORE INTO dorar_cache (key, endpoint, response_json, fetched_at) VALUES (?,?,?,?)",
+                    rows)
+    return len(rows)
+
+
+def build_hadith_json(con: sqlite3.Connection) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    src = "AhmedBaset/hadith-json@main"
+    for fname, (col, _ar, _en, slug) in JSON_BOOKS.items():
+        path = RAW / "hadith-json" / f"{fname}.json"
+        if not path.exists():
+            continue
+        d = json.loads(path.read_text(encoding="utf-8"))
+        chapters = {c["id"]: c.get("arabic") for c in d.get("chapters", [])}
+        n, seen = 0, set()
+        for h in d["hadiths"]:
+            text_ar = (h.get("arabic") or "").strip()
+            number = str(h.get("idInBook") or h.get("id"))
+            if not text_ar or number in seen:
+                continue
+            seen.add(number)
+            en = h.get("english") or {}
+            text_en = (en.get("text") or "").strip() or None
+            narrator = (en.get("narrator") or "").strip().rstrip(":") or None
+            matn = extract_matn(text_ar)
+            con.execute(
+                "INSERT INTO hadiths (collection, book, number, text_ar, matn_ar, text_norm, matn_norm, "
+                "text_en, text_en_norm, narrator, source_url, source_dataset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                (col, chapters.get(h.get("chapterId")), number, text_ar, matn, normalize_ar(text_ar),
+                 normalize_ar(matn) if matn else None, text_en, normalize_en(text_en) if text_en else None,
+                 narrator, f"https://sunnah.com/{slug}:{number}", src),
+            )
+            n += 1
+        counts[col] = n
+    return counts
+
+
 def main() -> int:
     s = get_settings()
     db_path = s.resolve(s.db_path)
@@ -168,11 +226,13 @@ def main() -> int:
     with con:
         n_ayahs = build_ayahs(con)
         counts = build_hadiths(con)
+        counts.update(build_hadith_json(con))  # appended after: existing hadith ids (and vectors) stay valid
         con.execute("INSERT INTO hadiths_fts(hadiths_fts) VALUES ('rebuild')")
         con.execute("INSERT INTO hadiths_en_fts(hadiths_en_fts) VALUES ('rebuild')")
         con.execute("INSERT INTO ayahs_fts(ayahs_fts) VALUES ('rebuild')")
         con.execute("INSERT INTO ayahs_en_fts(ayahs_en_fts) VALUES ('rebuild')")
         con.execute("INSERT OR REPLACE INTO meta VALUES ('built_at', ?)", (datetime.now(UTC).isoformat(),))
+        n_dorar = import_dorar_cache(con)
     con.execute("VACUUM")
 
     print(f"ayahs: {n_ayahs}")
@@ -184,6 +244,7 @@ def main() -> int:
         print(f"gradings[{cls}] = {n}")
     matn_cov = con.execute("SELECT AVG(matn_ar IS NOT NULL) FROM hadiths").fetchone()[0]
     print(f"matn extracted for {matn_cov:.1%} of hadiths")
+    print(f"dorar cache entries imported from repo export: {n_dorar}")
     print(f"built {db_path} in {time.time() - t0:.1f}s")
     con.close()
     return 0

@@ -50,6 +50,13 @@ def _dorar_status() -> dict:
     return {"reachable": _dorar_cache["value"], "offline_mode": False}
 
 
+def _llm_name() -> str:
+    from app.llm.provider import get_provider
+
+    p = get_provider()
+    return f"{p.name}:{getattr(p, 'model', '')}" if p.available else "none (rule-based extraction)"
+
+
 @router.get("/health")
 async def health() -> dict:
     s = get_settings()
@@ -60,5 +67,5 @@ async def health() -> dict:
         "db": db,
         "index": index,
         "dorar": dorar,
-        "llm": {"configured": s.llm_configured, "model": s.llm_model},
+        "llm": {"configured": s.llm_configured, "provider": _llm_name()},
     }

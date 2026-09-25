@@ -27,6 +27,7 @@ the cited source, combined with the quoted grading. It is **not a religious ruli
 
 ```
 score = round(40 × match_confidence + TYPE[match_type] + GRADE[grade])      (0 if not found)
+score = min(score, 30) when the traffic light is red
 TYPE  = identical 30 · partial 20 · paraphrase 15 · altered 5 · not_found 0
 GRADE = sahih 30 · hasan 25 · daif 5 · mawdu 0 · unknown 10 · Quran 30
 ```
@@ -53,7 +54,8 @@ All verdicts are always quoted with grader, book and reference.
 | `TH_IDENTICAL` | 0.95 | whole-source char similarity (or aligned span covering ≥95% of the source) |
 | `TH_PARTIAL_SPAN` | 0.90 | char similarity of the aligned span |
 | `TH_PARTIAL_COVERAGE` | 0.60 | share of claim tokens aligned to the source |
-| `TH_ALTERED` | 0.60 | minimum span similarity to call it an altered quote |
+| `TH_ALTERED` | 0.60 | minimum span similarity to call it an altered quote … |
+| `TH_ALTERED_COVERAGE` | 0.50 | … which must also cover this share of the claim's words |
 | `TH_PARAPHRASE_RERANK` | 0.50 | reranker relevance for a cross-language (English → Arabic) meaning match |
 | `TH_PARAPHRASE_SAME_LANG` | 0.90 | reranker relevance for a same-language meaning match … |
 | `TH_PARAPHRASE_OVERLAP` | 0.40 | … which also needs this share of the claim's words in the source (never green) |

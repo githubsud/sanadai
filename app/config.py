@@ -11,8 +11,11 @@ ROOT = Path(__file__).resolve().parent.parent
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ROOT / ".env", env_file_encoding="utf-8", extra="ignore")
 
+    llm_provider: str = "auto"  # anthropic | gemini | auto
     anthropic_api_key: str = ""
     llm_model: str = "claude-opus-5"
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
 
     db_path: Path = ROOT / "db" / "sanad.db"
     chroma_path: Path = ROOT / "index" / "chroma"
@@ -41,6 +44,7 @@ class Settings(BaseSettings):
     th_partial_span: float = 0.90
     th_partial_coverage: float = 0.60
     th_altered: float = 0.60
+    th_altered_coverage: float = 0.50
     th_paraphrase_rerank: float = 0.50       # cross-language meaning match
     th_paraphrase_same_lang: float = 0.90    # same-language meaning match needs a higher score ...
     th_paraphrase_overlap: float = 0.40      # ... and this share of the claim's words in the source
@@ -60,7 +64,7 @@ class Settings(BaseSettings):
 
     @property
     def llm_configured(self) -> bool:
-        return bool(self.anthropic_api_key)
+        return bool(self.anthropic_api_key or self.gemini_api_key)
 
 
 @lru_cache

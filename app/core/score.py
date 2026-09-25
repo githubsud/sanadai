@@ -51,10 +51,22 @@ def aggregate_grade(gradings: list[dict]) -> str:
     return min(tied, key=CAUTION_ORDER.index)
 
 
+RED_SCORE_CAP = 30  # owner decision 2026-09-25: a red item never shows a high number (evidence stays visible)
+
+
 def sanad_score(claim_type: str, match_type: str, confidence: float, grade_class: str,
                 attributed_to_prophet: bool = True, cross_lang: bool = False) -> ScoreResult:
-    """claim_type: quran | hadith | saying. A same-language paraphrase (the circulating WORDING was not found,
-    only a text of similar meaning) is never green."""
+    """claim_type: quran | hadith | saying. Red results are capped at RED_SCORE_CAP."""
+    r = _score(claim_type, match_type, confidence, grade_class, attributed_to_prophet, cross_lang)
+    if r.status == "red":
+        r.score = min(r.score, RED_SCORE_CAP)
+    return r
+
+
+def _score(claim_type: str, match_type: str, confidence: float, grade_class: str,
+           attributed_to_prophet: bool, cross_lang: bool) -> ScoreResult:
+    """A same-language paraphrase (the circulating WORDING was not found, only a text of similar meaning) is
+    never green."""
     s = get_settings()
     conf = max(0.0, min(1.0, confidence or 0.0))
     if match_type == "not_found":

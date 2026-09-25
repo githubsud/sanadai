@@ -10,18 +10,19 @@ Raw data is not committed to the repository; the script reproduces it.
 | 3 | Tanzil Quran metadata | https://tanzil.net/res/text/metadata/quran-data.xml | CC BY (per file header) | v1.0, retrieved 2026-09-24 | Surah names (ar/en), ayah counts |
 | 4 | Saheeh International English translation (via Tanzil, `en.sahih`) | https://tanzil.net/trans/ | "For non-commercial purposes only; otherwise obtain permission from the translator/publisher." | Last update 2011-04-24, retrieved 2026-09-24 | English meaning of verses (labelled as a translation, never as Quran) |
 | 5 | fawazahmed0/hadith-api | https://github.com/fawazahmed0/hadith-api | The Unlicense (public domain) | branch `1`, retrieved 2026-09-24 | Arabic + English hadith text of 10 collections; gradings by named graders (Al-Albani, Shuaib Al-Arnaut, Zubair Ali Zai, Ahmad Shakir, …) |
-| 6 | Dorar.net (الدرر السنية) — hadith encyclopedia | https://dorar.net | Public website/API; used lightly with caching and attribution | live, cached in `dorar_cache` | Gradings of weak/fabricated hadith and authentic alternatives |
+| 6 | Dorar.net (الدرر السنية) — hadith encyclopedia | https://dorar.net | Public website/API; used lightly with caching and attribution. A cache export (`data/seeds/dorar_cache.jsonl`, 198 responses) is committed by owner decision so the demo works offline | live, cached in `dorar_cache`, retrieved 2026-09-24 | Gradings of weak/fabricated hadith and authentic alternatives |
 | 7 | AhmedElTabarani/dorar-hadith-api | https://github.com/AhmedElTabarani/dorar-hadith-api | MIT | main @ 2026-05 | Reference for Dorar endpoints and HTML parsing (ported to Python in `app/sources/dorar.py`) |
 | 8 | BAAI/bge-m3 | https://huggingface.co/BAAI/bge-m3 | MIT | HF main, retrieved 2026-09-24 | Dense embeddings (Arabic/English, cross-lingual); config/tokenizer/pooling files |
 | 9 | BAAI/bge-reranker-v2-m3 | https://huggingface.co/BAAI/bge-reranker-v2-m3 | Apache-2.0 | HF main, retrieved 2026-09-24 | Cross-encoder reranking / meaning score; config/tokenizer files |
 | 10 | Xenova/bge-m3 (`onnx/model_int8.onnx`) | https://huggingface.co/Xenova/bge-m3 | MIT (base: BAAI/bge-m3) | HF main, retrieved 2026-09-24 | int8 ONNX export of the same bge-m3 weights for CPU inference |
 | 11 | onnx-community/bge-reranker-v2-m3-ONNX (`onnx/model_int8.onnx`) | https://huggingface.co/onnx-community/bge-reranker-v2-m3-ONNX | no license tag on the repo; base model BAAI/bge-reranker-v2-m3 is Apache-2.0 (derivative export) | HF main, retrieved 2026-09-24 | int8 ONNX export of the same reranker weights for CPU inference |
-| 12 | Anthropic Claude API (`claude-opus-5`, configurable) | https://docs.anthropic.com | Anthropic commercial terms | — | Claim extraction (structured JSON) and screenshot OCR only — never sacred text or rulings |
+| 13 | AhmedBaset/hadith-json | https://github.com/AhmedBaset/hadith-json | **No license declared** — included by owner decision | main, retrieved 2026-09-25 | Arabic + English text of Musnad Ahmad, Sunan ad-Darimi, Riyad as-Salihin, al-Adab al-Mufrad, Bulugh al-Maram, Mishkat al-Masabih, ash-Shama'il (14,599 hadith) |
+| 12 | Anthropic Claude API (`claude-opus-5`) or Google Gemini API (`gemini-2.5-flash`), configurable | https://docs.anthropic.com · https://ai.google.dev | provider terms | — | Claim extraction (structured JSON) and screenshot OCR only — never sacred text or rulings |
 
-## Considered but not used (yet)
-| Source | Why not |
-|--------|---------|
-| AhmedBaset/hadith-json (https://github.com/AhmedBaset/hadith-json) | No license declared in the repository (scraped from sunnah.com). Pending owner decision. |
+## Note on AhmedBaset/hadith-json
+The repository declares **no license** (its data is scraped from sunnah.com). It is included by the project owner's
+decision (2026-09-25) for the 7 books that fawazahmed0/hadith-api does not cover. It carries no per-hadith gradings,
+so Dorar.net is consulted for them; when a primary collection matches the same text, the primary one is cited.
 
 ## Attribution shown in the app
 - "Quran text: Tanzil Project — tanzil.net (CC BY 3.0, verbatim)."

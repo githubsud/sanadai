@@ -73,6 +73,13 @@ def test_bukhari_hadith_green_with_evidence():
     assert [s.step for s in c.evidence_trace][:3] == ["quran_match", "retrieve", "classify"]
 
 
+def test_primary_collection_cited_over_secondary_compilation():
+    # Riyad as-Salihin 26 reproduces Bukhari 6138's wording without diacritics: Bukhari must be cited
+    r = pipeline.verify("قال النبي ﷺ: «من كان يؤمن بالله واليوم الآخر فليكرم ضيفه»")
+    c = r.claims[0]
+    assert c.source.collection_en == "Sahih al-Bukhari" and c.status == "green"
+
+
 def test_altered_hadith_is_amber_with_diff():
     row = bukhari_matn(300)
     words = row["matn_ar"].split()

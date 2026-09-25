@@ -5,6 +5,7 @@ Sources (see SOURCES.md):
     separate attribute of verse 1 (the TXT format prefixes it to the verse text).
   - Tanzil translation en.sahih (Saheeh International; non-commercial use)
   - fawazahmed0/hadith-api (Unlicense): Arabic + English editions with gradings
+  - AhmedBaset/hadith-json (no license declared; included by owner decision 2026-09-25): 7 books not covered above
 """
 
 import argparse
@@ -27,6 +28,12 @@ HADITH_API = "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1"
 HADITH_API_FALLBACK = "https://raw.githubusercontent.com/fawazahmed0/hadith-api/1"
 COLLECTIONS = ["bukhari", "muslim", "abudawud", "tirmidhi", "nasai", "ibnmajah", "malik",
                "nawawi", "qudsi", "dehlawi"]
+
+
+HADITH_JSON = "https://raw.githubusercontent.com/AhmedBaset/hadith-json/main/db/by_book"
+HADITH_JSON_BOOKS = ["the_9_books/ahmed", "the_9_books/darimi", "other_books/riyad_assalihin",
+                     "other_books/aladab_almufrad", "other_books/bulugh_almaram", "other_books/mishkat_almasabih",
+                     "other_books/shamail_muhammadiyah"]
 
 
 def fetch(client: httpx.Client, urls: list[str], dest: Path, force: bool) -> None:
@@ -73,6 +80,10 @@ def main() -> int:
                 urls = [f"{HADITH_API}/editions/{name}.min.json", f"{HADITH_API}/editions/{name}.json",
                         f"{HADITH_API_FALLBACK}/editions/{name}.min.json"]
                 fetch(client, urls, RAW / "hadith-api" / f"{name}.json", args.force)
+        print("AhmedBaset/hadith-json")
+        for book in HADITH_JSON_BOOKS:
+            fetch(client, [f"{HADITH_JSON}/{book}.json"], RAW / "hadith-json" / f"{book.split('/')[-1]}.json",
+                  args.force)
     print("done.")
     return 0
 

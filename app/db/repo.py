@@ -25,6 +25,13 @@ COLLECTION_NAMES = {
     "nawawi": ("الأربعون النووية", "40 Hadith an-Nawawi"),
     "qudsi": ("الأحاديث القدسية الأربعون", "40 Hadith Qudsi"),
     "dehlawi": ("أربعون الدهلوي", "40 Hadith Shah Waliullah"),
+    "ahmad": ("مسند أحمد", "Musnad Ahmad"),
+    "darimi": ("سنن الدارمي", "Sunan ad-Darimi"),
+    "riyadussalihin": ("رياض الصالحين", "Riyad as-Salihin"),
+    "adab": ("الأدب المفرد", "Al-Adab Al-Mufrad"),
+    "bulugh": ("بلوغ المرام", "Bulugh al-Maram"),
+    "mishkat": ("مشكاة المصابيح", "Mishkat al-Masabih"),
+    "shamail": ("الشمائل المحمدية", "Ash-Shama'il Al-Muhammadiyah"),
 }
 
 

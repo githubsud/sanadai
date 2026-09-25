@@ -111,6 +111,22 @@ def authentic(items: list[dict]) -> None:
             made += 1
 
 
+def _policy_status(query: str, top: dict) -> tuple[str, str]:
+    """Owner-approved policy (2026-09-25), applied to ALL Dorar verdicts on the same wording (similarity ≥ 0.9):
+    any fabricated/baseless verdict and no authenticating one → red; otherwise weak → amber."""
+    from difflib import SequenceMatcher
+
+    hits = repo.cache_get("search:" + normalize_ar(query)) or []
+    qn = normalize_ar(query)
+    same = [h for h in hits
+            if SequenceMatcher(None, qn, normalize_ar(h.get("text", "")), autojunk=False).ratio() >= 0.9]
+    classes = {h.get("grade_class") for h in same} | {top["grade_class"]}
+    if "mawdu" in classes and not classes & {"sahih", "hasan"}:
+        return "red", (f"policy: a fabricated/baseless verdict among {len(same)} verdicts on this wording, "
+                       "none authentic")
+    return "amber", f"policy: weak verdicts on this wording ({len(same)}), none fabricated-only"
+
+
 def weak_fabricated(items: list[dict]) -> None:
     rows = [json.loads(line) for line in SEED_REPORT.read_text(encoding="utf-8").splitlines() if line.strip()]
     good = [r for r in rows if (r.get("top") or {}).get("grade_class") in ("daif", "mawdu")
@@ -119,9 +135,10 @@ def weak_fabricated(items: list[dict]) -> None:
     daif = [r for r in good if r["top"]["grade_class"] == "daif"][: 40 - len(mawdu)]
     for n, r in enumerate(mawdu + daif, 1):
         t = r["top"]
+        status, basis = _policy_status(r["query"], t)
         items.append({"id": f"weak-{n:02d}", "category": "weak_fabricated", "variant": t["grade_class"],
                       "input": f"قال رسول الله ﷺ: «{r['query']}»", "lang": "ar", "expected_type": "hadith",
-                      "expected_status": "red" if t["grade_class"] == "mawdu" else "amber",
+                      "expected_status": status, "status_basis": basis,
                       "expected_source_id": f"dorar:{t['hadith_id']}",
                       "expected_source_ids": [f"dorar:{t['hadith_id']}"],
                       "label_basis": f"Dorar top hit: {t['mohdith']} — «{t['grade']}» "

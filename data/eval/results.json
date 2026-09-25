@@ -1,6 +1,6 @@
 {
   "config": {
-    "run_at": "2026-09-24 21:36 UTC",
+    "run_at": "2026-09-25 02:58 UTC",
     "extraction": "rules",
     "dense": true,
     "reranker": true,
@@ -14,6 +14,7 @@
       "th_partial_span": 0.9,
       "th_partial_coverage": 0.6,
       "th_altered": 0.6,
+      "th_altered_coverage": 0.5,
       "th_paraphrase_rerank": 0.5,
       "th_paraphrase_same_lang": 0.9,
       "th_paraphrase_overlap": 0.4,
@@ -26,7 +27,7 @@
     "top1_source_accuracy": 0.98,
     "top5_source_accuracy": 0.98,
     "n_with_source": 100,
-    "status_accuracy": 0.8917,
+    "status_accuracy": 0.9917,
     "match_type_accuracy": 0.9875,
     "confusion_matrix": {
       "green": {
@@ -38,20 +39,20 @@
       "amber": {
         "green": 0,
         "amber": 19,
-        "red": 12,
+        "red": 0,
         "none": 0
       },
       "red": {
         "green": 0,
         "amber": 1,
-        "red": 39,
+        "red": 51,
         "none": 0
       }
     },
     "latency_ms": {
-      "median": 4002,
-      "p90": 10532,
-      "max": 63030
+      "median": 2822,
+      "p90": 8920,
+      "max": 46098
     },
     "per_category": {
       "authentic": {
@@ -61,7 +62,7 @@
         "top5": 1.0,
         "status_acc": 1.0,
         "match_acc": 1.0,
-        "median_ms": 121
+        "median_ms": 67
       },
       "no_basis": {
         "n": 20,
@@ -70,7 +71,7 @@
         "top5": null,
         "status_acc": 0.95,
         "match_acc": 0.95,
-        "median_ms": 6886
+        "median_ms": 5915
       },
       "quran": {
         "n": 20,
@@ -79,16 +80,16 @@
         "top5": 0.95,
         "status_acc": 1.0,
         "match_acc": 1.0,
-        "median_ms": 6
+        "median_ms": 5
       },
       "weak_fabricated": {
         "n": 40,
         "extraction_recall": 1.0,
         "top1": 0.975,
         "top5": 0.975,
-        "status_acc": 0.7,
+        "status_acc": 1.0,
         "match_acc": null,
-        "median_ms": 6458
+        "median_ms": 5576
       }
     }
   }

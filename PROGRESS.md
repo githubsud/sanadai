@@ -16,25 +16,29 @@
 - [x] Phase 6 — Frontend (all 6.10 components) wired to API; screenshots in docs/screenshots (desktop + mobile)
 - [x] Phase 7 — Prepare-for-publishing (deterministic, no LLM) + verbatim validator; AR/EN output
 - [x] Phase 8 — Eval set (120 items, needs owner review), run_eval.py, EVALUATION.md, fixes from failure analysis
-  - hybrid run: top-5 98%, top-1 98%, extraction 100%, match-type 98.8%, status 89.2% (no false green),
-    median 4.0 s / p90 10.5 s on CPU
+  - final run (2026-09-25, 50,703 hadith, owner-policy labels): top-5 98%, top-1 98%, extraction 100%,
+    match-type 98.8%, status 99.2% (no false green), median 2.8 s / p90 8.9 s on CPU
 - [x] Phase 9 — Hardening (warm-up, timeouts, JSON 500, health), ruff clean, fresh-clone test passed
   (clone → setup.ps1 → download → build_db → 156 passed / 2 skipped; server works before the vector index)
 - [x] Phase 10 — README (bilingual, 4-command setup, diagram, screenshots, eval table), ARCHITECTURE, DEMO_SCRIPT,
   SOURCES, LICENSE, included/not-included list
 
 ## Next step
-All phases done. Waiting for owner decisions below; then: apply them, review labels, rerun eval, record the demo.
+Owner decisions applied. Pending: live Gemini test (key in .env), push to GitHub (empty repo), owner label review, demo video.
 
-## Open decisions for the owner
-1. Weak vs fabricated policy: a text with ≥1 «موضوع/لا أصل له» verdict and no authenticating verdict is RED
-   (currently). 12 of the 20 "weak" eval items (labelled by Dorar's top hit) turn red under this rule.
-2. Sanad Score for red items: spec formula gives ~70 to a well-evidenced fabricated text. Cap red scores?
-3. ANTHROPIC_API_KEY for live LLM extraction + screenshot OCR tests (not available on dev machine).
-4. AhmedBaset/hadith-json has no license — include (7 more books: Ahmad, Darimi, Riyad as-Salihin…) or not?
-5. Commit an export of the Dorar cache so a fresh clone works fully offline? (Dorar content licensing unclear.)
-6. Review data/seeds/circulating.txt + seed_report.jsonl and data/eval/testset.jsonl labels (all needs_review).
-7. onnx-community/bge-reranker-v2-m3-ONNX has no license tag (derivative of an Apache-2.0 model) — acceptable?
+## Owner decisions (2026-09-25)
+1. Cautious policy KEPT: any fabricated/baseless verdict and no authenticating one → red. Test-set labels for
+   weak/fabricated items now computed with this policy over all Dorar verdicts on the same wording (12 relabelled).
+2. Red Sanad Score capped at 30 (evidence still shown in full).
+3. Dorar cache export COMMITTED (data/seeds/dorar_cache.jsonl, 198 responses); build_db imports it.
+4. AhmedBaset/hadith-json INCLUDED despite no license: +7 books, 50,703 hadith / 17 collections. Primary collections
+   are cited over secondary compilations (Riyad, Mishkat, Bulugh, 40s) when both match.
+5. onnx-community reranker export (no license tag, Apache-2.0 base) accepted.
+6. Owner has a Gemini key (no Anthropic key) → GeminiProvider added (LLM_PROVIDER=auto|anthropic|gemini).
+   Live test pending: owner adds GEMINI_API_KEY to .env.
+7. Owner will review needs_review data (seeds, seed report, test set).
+8. LICENSE: Ahmed Abayazid Mussaad (SanadAI). Publish to https://github.com/githubsud (repo: sanadai) — needs the
+   empty repository to be created (no gh CLI on this machine). Demo video: owner records per DEMO_SCRIPT.md.
 
 ## Decisions
 - 2026-09-24: venv on Python 3.12 (3.13 also installed) for best torch/chromadb wheel compatibility.
