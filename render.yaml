@@ -1,0 +1,36 @@
+# Render Blueprint — SanadAI "lite" on the free plan (512 MB RAM): lexical search + Gemini + Dorar cache.
+# Render dashboard → New → Blueprint → select this repository → enter GEMINI_API_KEY when asked.
+services:
+  - type: web
+    name: sanadai
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-lite.txt && python scripts/fetch_space_data.py --db-only
+    startCommand: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: GEMINI_API_KEY
+        sync: false            # secret: entered in the Render dashboard, never committed
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_MODEL
+        value: gemini-3.8-flash
+      - key: GEMINI_FALLBACK_MODELS
+        value: gemini-2.5-flash,gemini-flash-latest
+      - key: USE_DENSE
+        value: "false"
+      - key: USE_RERANKER
+        value: "false"
+      - key: RATE_VERIFY_PER_HOUR
+        value: "60"
+      - key: RATE_LLM_PER_HOUR
+        value: "20"
+      - key: RATE_LLM_PER_DAY_GLOBAL
+        value: "500"
+      - key: DORAR_TIMEOUT_S
+        value: "6"
+      - key: PYTHONIOENCODING
+        value: utf-8
