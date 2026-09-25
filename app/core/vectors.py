@@ -1,16 +1,27 @@
 """ChromaDB access (vectors only; texts live in SQLite)."""
 
+import logging
+import threading
 from functools import lru_cache
 
 from app.config import get_settings
+
+log = logging.getLogger(__name__)
+# Chroma's PersistentClient must not be created concurrently (startup warm-up vs. first request).
+_client_lock = threading.Lock()
 
 COLLECTION_NAMES = ("ayah_ar", "ayah_en", "hadith_ar", "hadith_en", "dorar_ar")
 # Core books indexed in DEMO_SUBSET mode. Lexical (FTS5) search always covers every collection.
 DEMO_HADITH_COLLECTIONS = ["bukhari", "muslim", "nawawi", "qudsi", "dehlawi"]
 
 
-@lru_cache
 def client():
+    with _client_lock:
+        return _client()
+
+
+@lru_cache
+def _client():
     import chromadb
     from chromadb.config import Settings as ChromaSettings
 
@@ -27,7 +38,8 @@ def get_collection(name: str):
 def index_counts() -> dict[str, int]:
     try:
         return {n: get_collection(n).count() for n in COLLECTION_NAMES}
-    except Exception:  # noqa: BLE001 - index optional
+    except Exception as e:  # noqa: BLE001 - index optional
+        log.warning("vector index unavailable: %s", e)
         return {}
 
 
