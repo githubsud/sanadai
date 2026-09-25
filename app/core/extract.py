@@ -144,10 +144,10 @@ def _validated(post: str, raw: dict) -> list[ExtractedClaim]:
     return out
 
 
-def extract_claims(post: str) -> Extraction:
+def extract_claims(post: str, allow_llm: bool = True) -> Extraction:
     provider = get_provider()
     notes: list[str] = []
-    if provider.available:
+    if provider.available and allow_llm:
         content = [{"type": "text", "text": prompts.EXTRACT_USER.format(post=post)}]
         for attempt in (1, 2):
             try:
@@ -159,6 +159,8 @@ def extract_claims(post: str) -> Extraction:
             except (LLMError, ValidationError) as e:
                 log.warning("LLM extraction attempt %d failed: %s", attempt, e)
                 notes.append(f"llm_attempt_{attempt}_failed")
+    elif provider.available:
+        notes.append("llm_rate_limited")
     else:
         notes.append("llm_not_configured")
     return Extraction(rule_extract(post), "rules", notes)

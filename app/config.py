@@ -57,6 +57,10 @@ class Settings(BaseSettings):
 
     max_input_chars: int = 5000
     request_timeout_s: float = 180.0
+    # public-deployment limits (0 = off): verify requests per visitor/hour, LLM calls per visitor/hour, LLM per day
+    rate_verify_per_hour: int = 0
+    rate_llm_per_hour: int = 0
+    rate_llm_per_day_global: int = 0
     warm_up: bool = True
     max_image_bytes: int = 5_000_000
 

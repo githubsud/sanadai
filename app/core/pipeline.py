@@ -407,14 +407,18 @@ def verify_claim(idx: int, claim: ExtractedClaim) -> ClaimResult:
 
 # ---------------- entry point ----------------
 
-def verify(text: str | None = None, image_base64: str | None = None, lang_hint: str | None = None) -> VerifyResponse:
+def verify(text: str | None = None, image_base64: str | None = None, lang_hint: str | None = None,
+           allow_llm: bool = True) -> VerifyResponse:
+    """`allow_llm=False` (visitor over the LLM budget): rule-based extraction, no image reading."""
     s = get_settings()
     tr = Tracer()
-    notes: list[str] = []
+    notes: list[str] = [] if allow_llm else ["llm_rate_limited"]
     post = (text or "").strip()
     if image_base64:
         with tr.step("ocr") as st:
             try:
+                if not allow_llm:
+                    raise LLMError("image reading limit reached for now — paste the text instead")
                 ocr_text = ocr_image(image_base64)
                 post = (post + "\n" + ocr_text).strip() if post else ocr_text.strip()
                 st.detail["chars"] = len(ocr_text)
@@ -429,7 +433,7 @@ def verify(text: str | None = None, image_base64: str | None = None, lang_hint: 
         return VerifyResponse(check_id=check_id, input_text="", input_lang=lang, extraction_method="rules",
                               claims=[], evidence_trace=tr.steps, notes=notes + ["empty_input"])
     with tr.step("extract") as st:
-        ex = extract_claims(post)
+        ex = extract_claims(post, allow_llm=allow_llm)
         st.detail.update(method=ex.method, n=len(ex.claims), notes=ex.notes)
     notes += ex.notes
     claims = [verify_claim(i, c) for i, c in enumerate(ex.claims)]

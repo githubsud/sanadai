@@ -99,6 +99,7 @@ const STRINGS = {
       gradings_from_dorar: "أُضيفت أحكام من الدرر السنية.",
       dorar_skipped_no_arabic_text: "لم نبحث في الدرر السنية لعدم توفر نص عربي.",
       llm_not_configured: "",
+      llm_rate_limited: "بلغتَ حد استخدام الذكاء الاصطناعي مؤقتًا؛ استُخدم المستخرج بالقواعد.",
     },
     reasons: {
       verified: "مطابق لمصدر موثّق",
@@ -213,6 +214,7 @@ const STRINGS = {
       gradings_from_dorar: "Gradings added from Dorar.net.",
       dorar_skipped_no_arabic_text: "Dorar.net not searched: no Arabic text available.",
       llm_not_configured: "",
+      llm_rate_limited: "AI usage limit reached for now; the rule-based extractor was used.",
     },
     reasons: {
       verified: "Matches an authenticated source",
