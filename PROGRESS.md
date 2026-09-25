@@ -24,7 +24,7 @@
   SOURCES, LICENSE, included/not-included list
 
 ## Next step
-Owner decisions applied. Pending: live Gemini test (key in .env), push to GitHub (empty repo), owner label review, demo video.
+Owner decisions applied, Gemini live-tested, pushed to https://github.com/githubsud/sanadai. Pending: owner label review, demo video.
 
 ## Owner decisions (2026-09-25)
 1. Cautious policy KEPT: any fabricated/baseless verdict and no authenticating one → red. Test-set labels for
@@ -35,7 +35,10 @@ Owner decisions applied. Pending: live Gemini test (key in .env), push to GitHub
    are cited over secondary compilations (Riyad, Mishkat, Bulugh, 40s) when both match.
 5. onnx-community reranker export (no license tag, Apache-2.0 base) accepted.
 6. Owner has a Gemini key (no Anthropic key) → GeminiProvider added (LLM_PROVIDER=auto|anthropic|gemini).
-   Live test pending: owner adds GEMINI_API_KEY to .env.
+   LIVE-TESTED 2026-09-25 with gemini-3.8-flash: extraction verbatim on 3 synthetic posts (caught a companion's
+   saying and an English paraphrase the rules missed; a du'a post → no claims); OCR of a synthetic screenshot
+   (docs/demo/synthetic_post.png) → both claims verified. gemini-3.8-flash returned 503 "high demand" at times →
+   fallback chain GEMINI_FALLBACK_MODELS (gemini-2.5-flash, gemini-flash-latest).
 7. Owner will review needs_review data (seeds, seed report, test set).
 8. LICENSE: Ahmed Abayazid Mussaad (SanadAI). Publish to https://github.com/githubsud (repo: sanadai) — needs the
    empty repository to be created (no gh CLI on this machine). Demo video: owner records per DEMO_SCRIPT.md.

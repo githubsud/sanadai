@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     llm_model: str = "claude-opus-5"
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash"
+    gemini_fallback_models: str = "gemini-2.5-flash,gemini-flash-latest"  # tried on 503/429 (overload)
 
     db_path: Path = ROOT / "db" / "sanad.db"
     chroma_path: Path = ROOT / "index" / "chroma"

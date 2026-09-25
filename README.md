@@ -40,6 +40,9 @@ texts, and rewrites the post with every sacred text replaced by its **verbatim o
 - **«جهّز للنشر» Prepare for publishing** — AR/EN, citations, WhatsApp share; a validator checks that every inserted
   sacred text exists verbatim in the sources.
 
+Screenshot input (Gemini/Claude OCR) — a synthetic post image ([docs/demo/synthetic_post.png](docs/demo/synthetic_post.png))
+is transcribed, its two claims extracted verbatim and verified (fabricated hadith 🔴, Quran 112:1 🟢).
+
 ## Quick start (4 commands)
 
 Windows (PowerShell):
@@ -65,7 +68,7 @@ git clone https://github.com/githubsud/sanadai.git && cd sanadai
   (`LLM_PROVIDER=auto|anthropic|gemini`). Without a key, rule-based extraction is used and image input is disabled.
 - The Dorar.net cache used by the demo is committed (`data/seeds/dorar_cache.jsonl`) and loaded by `build_db`, so the
   fresh clone works offline; `seed_dorar.py` refreshes it from the network.
-- `make test` / `pytest -q` — 177 tests (`RUN_SLOW=1` adds the model-based ones); `python scripts/run_eval.py` — evaluation (see below).
+- `make test` / `pytest -q` — 179 tests (2 model-based ones run with `RUN_SLOW=1`); `python scripts/run_eval.py` — evaluation (see below).
 
 ## Architecture
 

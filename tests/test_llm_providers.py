@@ -35,7 +35,7 @@ def gemini_reply(text: str, finish="STOP") -> httpx.Response:
 def test_gemini_request_and_parse(monkeypatch):
     cap = Captured(gemini_reply('{"claims": []}'))
     monkeypatch.setattr(httpx, "post", cap)
-    p = GeminiProvider(api_key="test-key", model="gemini-x")
+    p = GeminiProvider(api_key="test-key", model="gemini-x", fallbacks=[])
     content = [{"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": "AAAA"}},
                {"type": "text", "text": "hello"}]
     assert p.json("sys", content, prompts.EXTRACT_SCHEMA) == {"claims": []}
@@ -62,6 +62,29 @@ def test_gemini_errors_raise_llmerror(monkeypatch, response):
     monkeypatch.setattr(httpx, "post", Captured(response))
     with pytest.raises(LLMError):
         GeminiProvider(api_key="k").json("s", [{"type": "text", "text": "x"}], prompts.OCR_SCHEMA)
+
+
+def test_gemini_falls_back_to_next_model_on_overload(monkeypatch):
+    seq = [httpx.Response(503, json={"error": {"message": "high demand"}}), gemini_reply('{"text": "ok"}')]
+    urls = []
+
+    def post(url, json=None, timeout=None, headers=None):
+        urls.append(url)
+        return seq.pop(0)
+
+    monkeypatch.setattr(httpx, "post", post)
+    p = GeminiProvider(api_key="k", model="main-model", fallbacks=["backup-model"])
+    assert p.json("s", [{"type": "text", "text": "x"}], prompts.OCR_SCHEMA) == {"text": "ok"}
+    assert urls[0].endswith("/main-model:generateContent") and urls[1].endswith("/backup-model:generateContent")
+    assert p.last_model == "backup-model"
+
+
+def test_gemini_does_not_fall_back_on_bad_request(monkeypatch):
+    cap = Captured(httpx.Response(400, json={"error": {"message": "bad"}}))
+    monkeypatch.setattr(httpx, "post", cap)
+    with pytest.raises(LLMError):
+        GeminiProvider(api_key="k", model="m", fallbacks=["b"]).json("s", [], prompts.OCR_SCHEMA)
+    assert len(cap.calls) == 1
 
 
 def test_gemini_without_key_is_unavailable():

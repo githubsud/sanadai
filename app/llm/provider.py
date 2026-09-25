@@ -108,11 +108,16 @@ class GeminiProvider:
     name = "gemini"
     BASE = "https://generativelanguage.googleapis.com/v1beta"
 
-    def __init__(self, api_key: str | None = None, model: str | None = None, timeout: float = 45.0):
+    RETRYABLE = {429, 500, 502, 503, 504}
+
+    def __init__(self, api_key: str | None = None, model: str | None = None, timeout: float = 45.0,
+                 fallbacks: list[str] | None = None):
         s = get_settings()
-        self.api_key = api_key if api_key is not None else s.gemini_api_key
+        self.api_key = (api_key if api_key is not None else s.gemini_api_key).strip()
         self.model = model or s.gemini_model
         self.timeout = timeout
+        fb = fallbacks if fallbacks is not None else [m.strip() for m in s.gemini_fallback_models.split(",")]
+        self.models = [self.model] + [m for m in fb if m and m != self.model]
 
     @property
     def available(self) -> bool:
@@ -140,16 +145,27 @@ class GeminiProvider:
             "generationConfig": {"responseMimeType": "application/json", "responseSchema": to_gemini_schema(schema),
                                  "maxOutputTokens": max_tokens, "temperature": 0},
         }
-        try:
-            r = httpx.post(f"{self.BASE}/models/{self.model}:generateContent", json=body, timeout=self.timeout,
-                           headers={"x-goog-api-key": self.api_key})  # key in a header, never in the URL/logs
-        except httpx.HTTPError as e:
-            raise LLMError(f"connection error: {e}") from e
-        if r.status_code != 200:
+        # Overloaded / rate-limited models (503/429/5xx) fall through to the next model in the chain.
+        errors = []
+        for model in self.models:
+            try:
+                r = httpx.post(f"{self.BASE}/models/{model}:generateContent", json=body, timeout=self.timeout,
+                               headers={"x-goog-api-key": self.api_key})  # key in a header, never in URL/logs
+            except httpx.HTTPError as e:
+                errors.append(f"{model}: connection error {e}")
+                continue
+            if r.status_code == 200:
+                self.last_model = model
+                return self._parse(r.json())
             msg = r.json().get("error", {}).get("message", "") if r.headers.get("content-type", "").startswith(
                 "application/json") else ""
-            raise LLMError(f"Gemini API error {r.status_code}: {msg[:200]}")
-        data = r.json()
+            errors.append(f"{model}: {r.status_code} {msg[:120]}")
+            if r.status_code not in self.RETRYABLE:
+                break
+        raise LLMError("Gemini API error — " + " | ".join(errors))
+
+    @staticmethod
+    def _parse(data: dict) -> dict:
         if data.get("promptFeedback", {}).get("blockReason"):
             raise LLMError("request blocked by the model's safety filter")
         cands = data.get("candidates") or []
