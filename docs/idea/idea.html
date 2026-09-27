@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ملف الفكرة — سند AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  :root { --deep:#0B3B3A; --teal:#14655F; --gold:#C9A227; --mint:#E6F2EF; --ink:#16302F; --muted:#5B706E;
+          --green:#1E8E5A; --amber:#B7791F; --red:#C0392B; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif; color:var(--ink);
+         font-size:10.6pt; line-height:1.75; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  h1,h2,h3 { color:var(--deep); line-height:1.35; }
+  h2 { font-size:15pt; margin:0 0 6px; padding-bottom:4px; border-bottom:2px solid var(--gold); }
+  h3 { font-size:11.5pt; margin:10px 0 4px; color:var(--teal); }
+  p { margin:0 0 7px; }
+  section { margin-bottom:14px; break-inside:avoid; }
+  .page-break { break-before:page; }
+  .muted { color:var(--muted); }
+  .ltr { direction:ltr; unicode-bidi:embed; display:inline-block; }
+
+  /* cover */
+  .cover { height:262mm; display:flex; flex-direction:column; justify-content:space-between;
+           background:linear-gradient(160deg,var(--deep) 0%,var(--teal) 70%); color:#fff; border-radius:14px; padding:22mm 16mm; }
+  .cover .logo { width:64px; height:64px; }
+  .cover h1 { color:#fff; font-size:38pt; margin:10mm 0 2mm; }
+  .cover .tag { font-size:17pt; color:var(--gold); font-weight:600; margin:0 0 8mm; }
+  .cover .lead { font-size:12.5pt; line-height:1.9; max-width:150mm; color:#E6F2EF; }
+  .cover table { width:100%; border-collapse:collapse; font-size:11pt; color:#fff; }
+  .cover td { padding:5px 0; border-bottom:1px solid rgba(230,242,239,.25); vertical-align:top; }
+  .cover td:first-child { color:var(--gold); width:36mm; font-weight:600; }
+  .cover a { color:#fff; }
+
+  .box { background:var(--mint); border-radius:10px; padding:9px 12px; }
+  .principle { border-inline-start:4px solid var(--gold); background:#FFFBEF; border-radius:8px; padding:8px 12px; }
+  ol.steps { padding-inline-start:20px; margin:4px 0; }
+  ol.steps li { margin:2px 0; }
+  ol.steps b { color:var(--teal); }
+
+  .flow { display:flex; gap:6px; align-items:stretch; margin:8px 0; }
+  .flow div { flex:1; background:#fff; border:1.5px solid var(--teal); border-radius:9px; padding:6px 5px; text-align:center;
+              font-size:9pt; line-height:1.45; }
+  .flow div b { display:block; color:var(--deep); font-size:9.6pt; }
+  .flow .arrow { flex:0 0 12px; border:none; background:none; color:var(--gold); font-size:14pt; padding:10px 0 0; }
+
+  table.t { width:100%; border-collapse:collapse; font-size:9.8pt; margin:4px 0 8px; }
+  table.t th { background:var(--deep); color:#fff; font-weight:600; padding:5px 8px; text-align:start; }
+  table.t td { border-bottom:1px solid #d6e5e1; padding:5px 8px; vertical-align:top; }
+  table.t tr:nth-child(even) td { background:#F6FAF9; }
+  .num { font-weight:700; color:var(--teal); white-space:nowrap; }
+
+  .lights { display:flex; gap:8px; }
+  .lights div { flex:1; border-radius:9px; padding:7px 10px; font-size:9.6pt; }
+  .g { background:#E3F5EC; } .a { background:#FDF3DF; } .r { background:#FBE7E4; }
+  .g b { color:var(--green); } .a b { color:var(--amber); } .r b { color:var(--red); }
+
+  figure { margin:6px 0 10px; break-inside:avoid; }
+  figure img { width:100%; border:1px solid #cfe2dd; border-radius:8px; display:block; }
+  figure.crop img { height:118mm; object-fit:cover; object-position:top; }
+  figcaption { font-size:9pt; color:var(--muted); margin-top:3px; text-align:center; }
+  .two { display:flex; gap:10px; }
+  .two figure { flex:1; }
+  .mobile img { height:128mm; object-fit:cover; object-position:top; }
+  .footer-note { font-size:8.8pt; color:var(--muted); border-top:1px solid #d6e5e1; padding-top:6px; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<div class="cover">
+  <div>
+    <img class="logo" src="../../web/assets/logo.svg" alt="">
+    <h1>سند AI</h1>
+    <p class="tag">تحقّق قبل أن تنشر</p>
+    <p class="lead">أداة ذكية تمكّن الدعاة وصنّاع المحتوى الإسلامي من التحقق من الآيات والأحاديث والأقوال المتداولة قبل نشرها:
+      تجد النص الأصلي في المصادر الموثوقة، وتنقل أحكام العلماء كما هي، وتقترح البديل الصحيح، وتجهّز المنشور للنشر
+      بالنصوص الأصلية حرفيًا مع التوثيق — دون أن يُصدر النظام حكمًا من عنده.</p>
+  </div>
+  <table>
+    <tr><td>التحدي</td><td>تحدي الذكاء الاصطناعي في خدمة المحتوى الإسلامي</td></tr>
+    <tr><td>المسار</td><td>أدوات المعرفة والتحقق لتمكين المعرّفين بالإسلام</td></tr>
+    <tr><td>مقدّم الفكرة</td><td>أحمد أبايزيد مساعد (مشاركة فردية)</td></tr>
+    <tr><td>النسخة التجريبية</td><td><a class="ltr" href="https://sanadai-zl6q.onrender.com">https://sanadai-zl6q.onrender.com</a></td></tr>
+    <tr><td>الكود المصدري</td><td><a class="ltr" href="https://github.com/githubsud/sanadai">https://github.com/githubsud/sanadai</a></td></tr>
+  </table>
+</div>
+
+<!-- ============ PROBLEM / SOLUTION ============ -->
+<div class="page-break"></div>
+<section>
+  <h2>١. المشكلة</h2>
+  <p>تنتشر على منصات التواصل يوميًا منشورات تبدأ بـ«قال رسول الله ﷺ» أو تنقل آيات بألفاظ محرّفة، وكثير منها أحاديث ضعيفة
+    أو موضوعة أو أقوال لا أصل لها نُسبت إلى النبي ﷺ. ويعيد الدعاة وصنّاع المحتوى نشرها بحسن نية لأن التحقق يدويًا يتطلب:
+    البحث في كتب متعددة، ومعرفة أحكام العلماء، ومقارنة الألفاظ — وهو ما لا يتوفر له الوقت أو الأداة المناسبة.</p>
+  <div class="box">النتيجة: انتشار ما لا يصح، واهتزاز مصداقية المحتوى الدعوي، خصوصًا حين يُقدَّم لغير المسلمين أو للمسلمين الجدد.</div>
+</section>
+
+<section>
+  <h2>٢. الفكرة والحل</h2>
+  <p>يلصق المستخدم نص المنشور — أو <b>صورة</b> له — بالعربية أو الإنجليزية، فيقوم سند AI بما يلي:</p>
+  <ol class="steps">
+    <li><b>يستخرج</b> كل آية وحديث وقول منسوب من المنشور.</li>
+    <li><b>يبحث</b> عن النص العربي الأصلي في مصادر موثوقة: نص المصحف من مشروع تنزيل، و50,703 حديثًا من 17 كتابًا، والدرر السنية.</li>
+    <li><b>يقارن الألفاظ</b> كلمةً بكلمة: مطابق، جزء من النص، ألفاظ مُغيَّرة (مع إبراز التغيير)، بالمعنى، أو لم يُعثر عليه.</li>
+    <li><b>ينقل أحكام العلماء كما هي</b> مع اسم المحدّث والكتاب والرقم — دون توليد أي حكم.</li>
+    <li><b>يعرض</b> إشارة ضوئية ودرجة ثقة («درجة السند») ومخططًا للأدلة يوضح كل خطوة.</li>
+    <li><b>يقترح بديلًا صحيحًا</b> بالمعنى نفسه عند الضعيف والموضوع.</li>
+    <li><b>«جهّز للنشر»</b>: يعيد كتابة المنشور بالنصوص الأصلية حرفيًا مع التوثيق، ويحذف ما لا أصل له أو يستبدله بالصحيح.</li>
+  </ol>
+  <div class="lights" style="margin-top:8px">
+    <div class="g"><b>🟢 موثّق</b><br>آية مطابقة لنص المصحف، أو حديث صحيح/حسن.</div>
+    <div class="a"><b>🟡 يحتاج مراجعة</b><br>ضعيف، أو ألفاظ مغيّرة، أو بالمعنى فقط.</div>
+    <div class="r"><b>🔴 منسوب خطأً أو لا أصل له</b><br>موضوع، أو غير موجود في المصادر المعتمدة.</div>
+  </div>
+</section>
+
+<section>
+  <h2>٣. الأمانة العلمية: مبادئ لا تُتجاوز</h2>
+  <div class="principle">
+    <p><b>لا حكم من عند النظام:</b> كل حكم منقول من مصدره باسم قائله، والدرجة مقياس لثقة المطابقة والأدلة لا حكمٌ شرعي.</p>
+    <p><b>لا يولّد الذكاء الاصطناعي آيةً ولا حديثًا:</b> دوره مقصور على استخراج الادعاءات وقراءة الصور، ويُرفض آليًا أي نص
+      يخرجه النموذج إن لم يكن موجودًا حرفيًا في منشور المستخدم.</p>
+    <p style="margin:0"><b>كل نتيجة معها دليلها:</b> وما لم يُعثر عليه يُقال فيه «لم يُعثر عليه في المصادر المعتمدة». ونص القرآن
+      يُعرض حرفيًا من مشروع تنزيل دون أي تعديل.</p>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<div class="page-break"></div>
+<section>
+  <h2>٤. كيف يعمل</h2>
+  <div class="flow">
+    <div><b>المنشور</b>نص أو صورة<br>عربي / إنجليزي</div><div class="arrow">←</div>
+    <div><b>الاستخراج</b>نموذج لغوي بمخرجات منظمة، مع بديل بالقواعد</div><div class="arrow">←</div>
+    <div><b>البحث</b>نصي + دلالي<br>ثم إعادة ترتيب</div><div class="arrow">←</div>
+    <div><b>المقارنة</b>كلمة بكلمة<br>مع إبراز الفروق</div><div class="arrow">←</div>
+    <div><b>الأحكام</b>منقولة من المصادر والدرر</div><div class="arrow">←</div>
+    <div><b>النتيجة</b>إشارة ودرجة ومخطط أدلة وبديل</div>
+  </div>
+  <p>يمر كل ادعاء بخطوات مسجّلة بتوقيتها (Evidence Trace)، فيرى المستخدم كيف وصل النظام إلى النتيجة ومن أي مصدر.
+    ويعمل البحث الحرفي أولًا (أغلب المنشورات تنقل النص كما هو) فتظهر النتيجة في أقل من ثانية، ولا تُستدعى النماذج الدلالية
+    إلا عند الحاجة إلى المطابقة بالمعنى أو عبر اللغتين.</p>
+
+  <h3>المصادر المعتمدة</h3>
+  <table class="t">
+    <tr><th>المصدر</th><th>المحتوى</th><th>الاستخدام</th></tr>
+    <tr><td>مشروع تنزيل (tanzil.net)</td><td>نص المصحف بالرسم العثماني والإملائي — 6,236 آية</td><td>عرض الآيات حرفيًا ومطابقتها</td></tr>
+    <tr><td>مجموعات الحديث المفتوحة</td><td>50,703 حديثًا من 17 كتابًا (الكتب التسعة، رياض الصالحين، الأدب المفرد، بلوغ المرام، المشكاة…) بالعربية والإنجليزية، و82 ألف حكم بأسماء المحدّثين</td><td>إيجاد الأصل والرقم والحكم</td></tr>
+    <tr><td>الدرر السنية (dorar.net)</td><td>أحكام المحدّثين على الأحاديث المتداولة، و«الصحيح البديل»</td><td>الضعيف والموضوع والبدائل</td></tr>
+  </table>
+
+  <h3>التقنيات</h3>
+  <table class="t">
+    <tr><th>المكوّن</th><th>التقنية</th></tr>
+    <tr><td>الخادم</td><td>Python · FastAPI · Pydantic</td></tr>
+    <tr><td>البحث النصي</td><td>SQLite FTS5 (BM25) مع تطبيع عربي (إزالة التشكيل وتوحيد الحروف)</td></tr>
+    <tr><td>البحث الدلالي</td><td>BAAI bge-m3 · إعادة الترتيب bge-reranker-v2-m3 · دمج النتائج (RRF) · ChromaDB</td></tr>
+    <tr><td>استخراج الادعاءات وقراءة الصور</td><td>Gemini أو Claude بمخرجات JSON مقيّدة بمخطط، مع مستخرج بالقواعد عند التعذّر</td></tr>
+    <tr><td>الواجهة</td><td>HTML/CSS/JavaScript، عربية أولًا مع الإنجليزية، ومخطط أدلة بـSVG</td></tr>
+  </table>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section>
+  <h2>٥. النتائج والتقييم</h2>
+  <p>قُيّم النظام على 120 حالة اختبار مبنية آليًا من المصادر نفسها (أحاديث صحيحة بصيغ مختلفة، وأحاديث ضعيفة وموضوعة متداولة،
+    وآيات بعضها بلفظ مغيَّر عمدًا، وأمثال شائعة منسوبة خطأً إلى النبي ﷺ):</p>
+  <table class="t">
+    <tr><th>المقياس</th><th>النتيجة</th></tr>
+    <tr><td>الوصول إلى المصدر الصحيح ضمن أفضل 5 نتائج (المستهدف ≥ 90%)</td><td class="num">98%</td></tr>
+    <tr><td>المصدر الأول هو الصحيح</td><td class="num">98%</td></tr>
+    <tr><td>دقة الإشارة الضوئية (موثّق / مراجعة / لا أصل له)</td><td class="num">99.2%</td></tr>
+    <tr><td>استخراج الادعاءات</td><td class="num">100%</td></tr>
+    <tr><td>نصوص ضعيفة أو موضوعة عُرضت خطأً على أنها موثّقة</td><td class="num">0</td></tr>
+  </table>
+  <p class="muted">الحالة الوحيدة المختلفة عن المتوقع جاءت في الاتجاه الحذر (مراجعة بدل «لا أصل له»). التقرير الكامل وطريقة
+    القياس في المستودع: docs/EVALUATION.md.</p>
+</section>
+
+<!-- ============ SCREENSHOTS ============ -->
+<div class="page-break"></div>
+<section>
+  <h2>٦. من داخل التطبيق</h2>
+  <figure class="crop">
+    <img src="../screenshots/02-fabricated-desktop.png" alt="">
+    <figcaption>منشور بالإنجليزية «Seek knowledge even if you have to go as far as China»: يربطه النظام بالنص العربي في الدرر السنية،
+      وينقل حكم ابن حبان «باطل لا أصل له» وأحكام غيره، ويقترح بديلًا صحيحًا.</figcaption>
+  </figure>
+  <div class="two">
+    <figure class="mobile"><img src="../screenshots/02-weak-mobile.png" alt="">
+      <figcaption>حديث ضعيف متداول: أحكام أربعة من العلماء بكتبهم وأرقامها (عرض الجوال).</figcaption></figure>
+    <figure class="mobile"><img src="../screenshots/02-quran-mobile.png" alt="">
+      <figcaption>آية مطابقة لنص المصحف بالرسم العثماني من مشروع تنزيل.</figcaption></figure>
+    <figure class="mobile"><img src="../demo/synthetic_post.png" alt="" style="height:auto;object-fit:contain">
+      <figcaption>قراءة لقطة شاشة لمنشور (مثال مصنوع للاختبار): يستخرج النظام النصين ويتحقق منهما.</figcaption></figure>
+  </div>
+</section>
+
+<!-- ============ IMPACT ============ -->
+<div class="page-break"></div>
+<section>
+  <h2>٧. الأثر المتوقع والمستفيدون</h2>
+  <table class="t">
+    <tr><th>المستفيد</th><th>الأثر</th></tr>
+    <tr><td>الدعاة والمعرّفون بالإسلام</td><td>نشر محتوى موثّق بالنص الأصلي ومصدره، وتجنّب نسبة ما لا يصح إلى النبي ﷺ.</td></tr>
+    <tr><td>صنّاع المحتوى ومديرو الصفحات</td><td>التحقق في ثوانٍ بدل البحث اليدوي، ومنشور جاهز للنشر بالتوثيق.</td></tr>
+    <tr><td>عامة المستخدمين</td><td>نشر ثقافة التثبت قبل المشاركة، وأداة بسيطة للتحقق من منشورات واتساب ووسائل التواصل.</td></tr>
+    <tr><td>المسلمون الجدد وغير المسلمين</td><td>وصول إلى النصوص الصحيحة مع ترجمة معانيها بالإنجليزية.</td></tr>
+  </table>
+
+  <h2 style="margin-top:12px">٨. ما يميّز سند AI</h2>
+  <ol class="steps">
+    <li><b>ينقل ولا يحكم:</b> كل حكم باسم قائله ومصدره، والذكاء الاصطناعي لا يكتب نصًا شرعيًا.</li>
+    <li><b>يكشف التحريف الدقيق:</b> تغيّر كلمة واحدة في آية أو حديث يظهر مبرَزًا، ولا يُعد النص «مطابقًا».</li>
+    <li><b>يعمل بالعربية والإنجليزية ومن الصور:</b> يربط النص الإنجليزي بأصله العربي.</li>
+    <li><b>لا يتوقف عند التشخيص:</b> يقترح البديل الصحيح ويجهّز المنشور للنشر بالنصوص الأصلية حرفيًا.</li>
+    <li><b>شفاف ومفتوح المصدر:</b> مخطط أدلة لكل نتيجة، وتقييم منشور، وكل مصدر موثّق بترخيصه.</li>
+  </ol>
+
+  <h2 style="margin-top:12px">٩. الحالة الحالية وخطة التطوير</h2>
+  <p><b>الحالة:</b> نموذج أولي يعمل بالكامل ومنشور على الإنترنت، مع الكود المصدري و181 اختبارًا آليًا.</p>
+  <p><b>التطوير المقترح:</b> مراجعة علمية لقوائم الاختبار والأحاديث المتداولة من متخصصين؛ توسيع قاعدة الأحاديث الضعيفة
+    المتداولة؛ إضافة لغات أخرى (الأردية، الإندونيسية، الفرنسية)؛ إضافة للمتصفح وبوت واتساب للتحقق من داخل المحادثة؛
+    واستضافة أقوى لتشغيل البحث الدلالي كاملًا في النسخة العامة.</p>
+
+  <p class="footer-note">جميع النصوص الشرعية في التطبيق منقولة من مصادرها المذكورة: نص القرآن من مشروع تنزيل (CC BY 3.0، دون تعديل)،
+    ونصوص الأحاديث وأحكامها من مجموعات مفتوحة (fawazahmed0/hadith-api، AhmedBaset/hadith-json)، وأحكام الأحاديث المتداولة
+    من الدرر السنية. قائمة المصادر وتراخيصها كاملة في ملف SOURCES.md بالمستودع.</p>
+</section>
+
+</body>
+</html>
